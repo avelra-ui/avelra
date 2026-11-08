@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avelra</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div class="brand">a<span class="vel">vel</span>ra</div>
+      <div class="version">0.1.0</div>
+    </header>
+
+    <main>
+      <section class="copy">
+        <p class="eyebrow">STARTER APP</p>
+        <h1>You're ready.</h1>
+        <p class="lead">This is a working Avelra app. Edit <code>client/</code> and make it yours.</p>
+
+        <section class="benefits" aria-label="Why Avelra">
+          <p class="benefits-title">WHY AVELRA</p>
+          <ul>
+            <li>
+              <span class="num">01</span>
+              <div><strong>Your stack stays.</strong><p>React, Vue, Svelte or vanilla — built to static assets.</p></div>
+            </li>
+            <li>
+              <span class="num">02</span>
+              <div><strong>509 KiB runtime.</strong><p>One executable, system WebView, no heavy runtime.</p></div>
+            </li>
+            <li>
+              <span class="num">03</span>
+              <div><strong>Instant builds.</strong><p>Assets only; no native compile per app.</p></div>
+            </li>
+          </ul>
+        </section>
+
+        <nav class="links" aria-label="Avelra links">
+          <a href="./">Docs <span>↗</span></a>
+          <a href="./">GitHub <span>↗</span></a>
+          <a href="./">Examples <span>↗</span></a>
+        </nav>
+      </section>
+
+      <section class="bridge" aria-live="polite">
+        <div class="bridge-top">
+          <span class="label">NATIVE BRIDGE</span>
+          <span class="state" id="status">connecting…</span>
+        </div>
+
+        <p class="hint">The client calls a native method and gets a result back.</p>
+
+        <pre class="call">await window.nativeCall({
+  method: "app.ping",
+  data: { value: <span id="code-value">42</span> }
+})</pre>
+
+        <p class="section-label controls-label">Change the value and call native.</p>
+
+        <div class="controls">
+          <label class="field" for="value">value</label>
+          <input id="value" type="number" value="42" step="1">
+          <button id="ping" type="button">Call native</button>
+        </div>
+
+        <p class="section-label">Result</p>
+
+        <div id="result" class="result">Waiting for app.ping…</div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Built with Avelra</span>
+      <span>tiny runtime · system WebView</span>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

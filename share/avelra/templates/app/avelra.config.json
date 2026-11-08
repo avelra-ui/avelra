@@ -1,0 +1,12 @@
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "identifier": "com.example.my-app",
+  "client": "client",
+  "icon": "icon.png",
+  "window": {
+    "title": "my-app",
+    "width": 960,
+    "height": 600
+  }
+}

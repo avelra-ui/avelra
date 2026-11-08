@@ -1,0 +1,12 @@
+{
+  "name": "Hello Avelra",
+  "version": "0.1.0",
+  "identifier": "com.example.hello-avelra",
+  "client": "client",
+  "icon": "",
+  "window": {
+    "title": "Hello Avelra",
+    "width": 600,
+    "height": 400
+  }
+}
