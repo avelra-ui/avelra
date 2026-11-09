@@ -66,9 +66,12 @@ body {
 
 .brand {
   font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
-  font-size: 28px;
-  font-weight: 650;
-  letter-spacing: -1.4px;
+  font-size: 46px;
+  font-weight: 600;
+  letter-spacing: -2.8px;
+  line-height: .9;
+  transform: skewX(-6deg);
+  transform-origin: left center;
 }
 
 .vel {
