@@ -215,10 +215,12 @@ code {
 .bridge {
   align-self: center;
   padding: 28px;
-  border: 1px solid rgba(255, 255, 255, .22);
+  border: 1px solid rgba(255, 255, 255, .28);
   border-radius: 28px;
-  background: linear-gradient(135deg, #241a42 0%, #43337d 54%, #6c5ce7 100%);
-  box-shadow: 0 30px 80px rgba(48, 34, 96, .26);
+  background: linear-gradient(135deg, rgba(36, 26, 66, .84) 0%, rgba(67, 51, 125, .72) 54%, rgba(108, 92, 231, .58) 100%);
+  box-shadow: 0 30px 80px rgba(48, 34, 96, .26), inset 0 1px 0 rgba(255, 255, 255, .22);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
 }
 
 .bridge-top {
@@ -279,9 +281,11 @@ code {
 }
 
 .call {
-  background: rgba(255, 255, 255, .94);
+  background: rgba(255, 255, 255, .82);
   color: var(--ink);
   box-shadow: 0 12px 26px rgba(20, 12, 48, .16);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
 }
 
 .call #code-value { color: var(--iris); font-weight: 600; }
@@ -289,7 +293,9 @@ code {
 .result {
   min-height: 78px;
   padding: 8px 15px;
-  background: rgba(255, 255, 255, .96);
+  background: rgba(255, 255, 255, .86);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
   color: var(--ink);
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
   font-size: 12px;
@@ -349,8 +355,10 @@ input {
   padding: 9px 10px;
   border: 1px solid rgba(255, 255, 255, .95);
   border-radius: 10px;
-  background: rgba(255, 255, 255, .95);
+  background: rgba(255, 255, 255, .84);
   color: var(--ink);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
   font: inherit;
   font-size: 12px;
 }
