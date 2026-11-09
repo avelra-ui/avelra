@@ -38,7 +38,7 @@ html, body { margin: 0; min-height: 100%; }
 
 body {
   min-height: 100vh;
-  background: linear-gradient(135deg, #fbfaff 0%, #f4f1ff 48%, #eefaff 100%);
+  background: #f8f7fc;
   color: var(--ink);
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
@@ -49,17 +49,14 @@ body {
   overflow: hidden;
 }
 
-.page::before {
-  content: "";
-  position: absolute;
-  width: min(980px, 80vw);
-  height: 460px;
-  left: -220px;
-  top: 52%;
-  background: linear-gradient(120deg, rgba(255, 255, 255, .72), rgba(167, 151, 255, .13) 62%, rgba(167, 151, 255, 0));
-  clip-path: polygon(0 20%, 100% 0, 100% 78%, 0 100%);
-  pointer-events: none;
-}
+.bg-lines { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.bg-lines i { position: absolute; display: block; width: 1600px; height: 110px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.62) 32%, rgba(255,255,255,.78) 50%, rgba(255,255,255,.46) 72%, transparent); transform: rotate(-38deg); }
+.bg-lines i:nth-child(1) { left: -420px; top: 60px; opacity: .54; }
+.bg-lines i:nth-child(2) { left: 160px; top: 330px; height: 82px; opacity: .42; }
+.bg-lines i:nth-child(3) { left: -500px; top: 620px; height: 140px; opacity: .48; }
+.bg-lines i:nth-child(4) { left: 500px; top: 780px; height: 72px; opacity: .36; }
+
+.shell { z-index: 1; }
 
 .shell {
   position: relative;
@@ -219,8 +216,8 @@ code {
   border-radius: 28px;
   background: linear-gradient(135deg, rgba(36, 26, 66, .84) 0%, rgba(67, 51, 125, .72) 54%, rgba(108, 92, 231, .58) 100%);
   box-shadow: 0 30px 80px rgba(48, 34, 96, .26), inset 0 1px 0 rgba(255, 255, 255, .22);
-  backdrop-filter: blur(28px) saturate(140%);
-  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: saturate(140%) brightness(1.02);
+  -webkit-backdrop-filter: saturate(140%) brightness(1.02);
 }
 
 .bridge-top {
@@ -284,8 +281,8 @@ code {
   background: rgba(255, 255, 255, .82);
   color: var(--ink);
   box-shadow: 0 12px 26px rgba(20, 12, 48, .16);
-  backdrop-filter: blur(16px) saturate(130%);
-  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: saturate(130%) brightness(1.02);
+  -webkit-backdrop-filter: saturate(130%) brightness(1.02);
 }
 
 .call #code-value { color: var(--iris); font-weight: 600; }
@@ -294,8 +291,8 @@ code {
   min-height: 78px;
   padding: 8px 15px;
   background: rgba(255, 255, 255, .86);
-  backdrop-filter: blur(16px) saturate(130%);
-  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: saturate(130%) brightness(1.02);
+  -webkit-backdrop-filter: saturate(130%) brightness(1.02);
   color: var(--ink);
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
   font-size: 12px;
@@ -357,8 +354,8 @@ input {
   border-radius: 10px;
   background: rgba(255, 255, 255, .84);
   color: var(--ink);
-  backdrop-filter: blur(14px) saturate(130%);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: saturate(130%) brightness(1.02);
+  -webkit-backdrop-filter: saturate(130%) brightness(1.02);
   font: inherit;
   font-size: 12px;
 }
