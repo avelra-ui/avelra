@@ -3,9 +3,6 @@ dist/
 *.o
 *.pid
 
-# Local agent handoff, not for publication
-HANDOFF.md
-
 # Python bytecode
 __pycache__/
 *.pyc
