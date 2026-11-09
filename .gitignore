@@ -6,8 +6,6 @@ dist/
 # Local agent handoff, not for publication
 HANDOFF.md
 
-# Task tracking is local-only and not part of the public repository.
-/tasks/
-
-# Local task tooling is not part of the public repository.
-/scripts/checks/tasks.py
+# Python bytecode
+__pycache__/
+*.pyc
