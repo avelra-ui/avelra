@@ -215,11 +215,10 @@ code {
 .bridge {
   align-self: center;
   padding: 28px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255, 255, 255, .22);
   border-radius: 28px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .74), rgba(255, 255, 255, .44));
-  box-shadow: 0 30px 80px rgba(84, 70, 150, .16), inset 0 1px 0 #fff;
-  backdrop-filter: blur(22px);
+  background: linear-gradient(135deg, #241a42 0%, #43337d 54%, #6c5ce7 100%);
+  box-shadow: 0 30px 80px rgba(48, 34, 96, .26);
 }
 
 .bridge-top {
@@ -231,7 +230,7 @@ code {
 }
 
 .label {
-  color: var(--iris);
+  color: #8ef0ff;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .16em;
@@ -240,19 +239,20 @@ code {
 .state {
   padding: 6px 9px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, .6);
-  color: var(--muted);
+  background: rgba(255, 255, 255, .12);
+  color: #d8d0ec;
   font-size: 9px;
   font-weight: 600;
   letter-spacing: .08em;
 }
 
-.state.ok { color: #087f83; }
-.state.ok::before { content: "● "; color: #00b9c6; }
-.state.error { color: #b42318; }
+.state.ok { color: #8ef0ff; }
+.state.ok::before { content: "● "; color: #45e0c1; }
+.state.error { color: #ffb4a8; }
 
 .bridge h2 {
   margin: 0;
+  color: #fff;
   font-size: 30px;
   line-height: 1.08;
   letter-spacing: -1.3px;
@@ -261,7 +261,7 @@ code {
 
 .hint {
   margin: 12px 0 0;
-  color: var(--muted);
+  color: #c8c0dc;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -271,7 +271,7 @@ code {
   margin: 16px 0 0;
   padding: 16px 17px;
   overflow: auto;
-  border: 1px solid rgba(255, 255, 255, .24);
+  border: 1px solid rgba(255, 255, 255, .92);
   border-radius: 16px;
   font-family: ui-monospace, "Cascadia Mono", monospace;
   font-size: 11px;
@@ -279,34 +279,49 @@ code {
 }
 
 .call {
-  background: linear-gradient(135deg, rgba(46, 32, 92, .94), rgba(81, 64, 158, .9), rgba(124, 108, 255, .82));
-  color: #e8e2f5;
-  box-shadow: 0 18px 34px rgba(58, 42, 130, .18);
+  background: rgba(255, 255, 255, .94);
+  color: var(--ink);
+  box-shadow: 0 12px 26px rgba(20, 12, 48, .16);
 }
 
-.call #code-value { color: #8ef0ff; font-weight: 600; }
+.call #code-value { color: var(--iris); font-weight: 600; }
 
 .result {
   min-height: 78px;
-  background: rgba(255, 255, 255, .58);
+  padding: 8px 15px;
+  background: rgba(255, 255, 255, .96);
+  color: var(--ink);
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  font-size: 12px;
+}
+
+.result table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.result th,
+.result td {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(21, 24, 39, .10);
+  text-align: left;
+}
+
+.result tr:last-child th,
+.result tr:last-child td { border-bottom: 0; }
+.result th {
   color: var(--muted);
+  font-weight: 400;
 }
-
-.result .row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(116, 108, 150, .12);
+.result td {
+  text-align: right;
+  color: var(--ink);
+  font-weight: 600;
 }
-
-.result .row:last-child { border-bottom: 0; }
-.result .row span:first-child { color: var(--muted); }
-.result .row span:last-child { color: var(--ink); font-weight: 600; }
 
 .section-label {
   margin: 15px 0 0;
-  color: var(--muted);
+  color: #bdb4d8;
   font-size: 8px;
   font-weight: 600;
   letter-spacing: .15em;
@@ -314,7 +329,7 @@ code {
 }
 
 .controls-label {
-  color: var(--ink);
+  color: #f5f2ff;
   font-size: 10px;
   letter-spacing: 0;
   text-transform: none;
@@ -327,18 +342,17 @@ code {
   margin-top: 8px;
 }
 
-.field { color: var(--muted); font-size: 11px; }
+.field { color: #c8c0dc; font-size: 11px; }
 
 input {
   width: 78px;
   padding: 9px 10px;
   border: 1px solid rgba(255, 255, 255, .95);
   border-radius: 10px;
-  background: rgba(255, 255, 255, .66);
+  background: rgba(255, 255, 255, .95);
   color: var(--ink);
   font: inherit;
   font-size: 12px;
-  backdrop-filter: blur(8px);
 }
 
 button {
@@ -347,8 +361,8 @@ button {
   padding: 10px 15px;
   border: 0;
   border-radius: 999px;
-  background: #151827;
-  color: #fff;
+  background: #fff;
+  color: var(--ink);
   font: inherit;
   font-size: 11px;
   font-weight: 600;
@@ -356,7 +370,7 @@ button {
   box-shadow: 0 10px 20px rgba(21, 24, 39, .16);
 }
 
-button:hover { background: #2b2740; }
+button:hover { background: #f0ecff; }
 button:disabled { opacity: .55; cursor: not-allowed; }
 
 input:focus-visible,
