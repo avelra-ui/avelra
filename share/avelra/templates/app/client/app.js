@@ -16,12 +16,7 @@ function syncCode() {
 async function ping() {
   if (typeof window.nativeCall !== "function") {
     statusEl.textContent = "preview";
-    renderRows([
-      ["method", "app.ping"],
-      ["message", "preview"],
-      ["echo.value", readValue()],
-      ["runtime", "browser"]
-    ]);
+    resultEl.textContent = "Open this app with `avelra run` to use the native bridge.";
     pingButton.disabled = true;
     return;
   }
@@ -45,24 +40,6 @@ async function ping() {
   }
 }
 
-function renderRows(rows) {
-  resultEl.textContent = "";
-  const table = document.createElement("table");
-  const body = document.createElement("tbody");
-  for (const [name, value] of rows) {
-    const row = document.createElement("tr");
-    const key = document.createElement("th");
-    key.scope = "row";
-    key.textContent = name;
-    const val = document.createElement("td");
-    val.textContent = String(value ?? "");
-    row.append(key, val);
-    body.append(row);
-  }
-  table.append(body);
-  resultEl.append(table);
-}
-
 function renderResult(response) {
   const payload = response.returnValue || {};
   const echo = payload.echo || {};
@@ -73,7 +50,17 @@ function renderResult(response) {
     ["runtime", payload.runtime]
   ];
 
-  renderRows(rows);
+  resultEl.textContent = "";
+  for (const [name, value] of rows) {
+    const row = document.createElement("div");
+    row.className = "row";
+    const key = document.createElement("span");
+    key.textContent = name;
+    const val = document.createElement("span");
+    val.textContent = String(value ?? "");
+    row.append(key, val);
+    resultEl.append(row);
+  }
 }
 
 function reportReady() {
