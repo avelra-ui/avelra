@@ -106,7 +106,7 @@ main {
 h1 {
   margin: 12px 0 0;
   font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
-  font-size: 58px;
+  font-size: 64px;
   font-weight: 500;
   line-height: 0.96;
   letter-spacing: -3px;
@@ -119,10 +119,10 @@ h1 {
 }
 
 .lead {
-  max-width: 380px;
+  max-width: 400px;
   margin: 16px 0 0;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.5;
 }
 
@@ -140,7 +140,7 @@ code {
   margin: 0 0 8px;
   color: var(--muted);
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.14em;
 }
 
@@ -162,21 +162,21 @@ code {
   padding-top: 1px;
   color: var(--iris);
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .benefits strong {
   display: block;
   color: var(--ink);
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 .benefits p {
-  margin: 2px 0 0;
+  margin: 3px 0 0;
   color: var(--muted);
-  font-size: 10px;
-  line-height: 1.3;
+  font-size: 12.5px;
+  line-height: 1.4;
 }
 
 .links {
@@ -189,7 +189,7 @@ code {
 
 .links a {
   color: var(--ink);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   text-decoration: none;
   border-bottom: 1px solid #c9cede;
@@ -222,14 +222,14 @@ code {
 .label {
   color: var(--iris);
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.14em;
 }
 
 .state {
   color: var(--muted);
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .state.ok {
@@ -247,7 +247,7 @@ code {
 .hint {
   margin: 10px 0 0;
   color: var(--ink);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -265,7 +265,7 @@ code {
   background: #fff;
   color: var(--ink);
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.55;
 }
 
@@ -303,7 +303,7 @@ code {
   margin: 14px 0 0;
   color: var(--ink);
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.14em;
 }
 
@@ -311,7 +311,7 @@ code {
   margin-top: 12px;
   color: var(--ink);
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0;
 }
 
@@ -324,7 +324,7 @@ code {
 
 .field {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 input {
@@ -335,7 +335,7 @@ input {
   background: #fff;
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 button {
@@ -345,7 +345,7 @@ button {
   background: var(--iris);
   color: #fff;
   font: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -378,7 +378,7 @@ footer {
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.06em;
 }
 
