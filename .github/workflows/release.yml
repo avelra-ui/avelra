@@ -197,7 +197,7 @@ jobs:
           mkdir -p npm-input release/npm
           find release -path '*/artifacts/*' -type f \( -name '*.tar.gz' -o -name '*.zip' \) -exec cp {} npm-input/ \;
           ./scripts/package/npm-universal.sh "$PWD/npm-input" "$PWD/release/npm"
-          sha256sum release/npm/*.tgz > release/SHA256SUMS-npm
+          (cd release/npm && sha256sum *.tgz) > release/SHA256SUMS-npm
 
       - name: Publish GitHub Release
         env:
