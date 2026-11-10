@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.0] - 2026-11-10
+
+Technical release with npm distribution.
+
+### Added
+
+- Universal `avelra-0.2.0.tgz` npm package built in GitHub Actions from the
+  tagged source and platform release artifacts.
+- Node launcher and Linux/Windows/macOS SDK payloads in one package.
+- npm tarball and `SHA256SUMS-npm` are release assets; npm registry is not
+  modified.
+
+### Changed
+
+- Release artifacts now include the npm package for technical testing.
+
 ## [0.1.0] - 2026-11-10
 
 First technical release of the Avelra SDK. This is an early preview, not a
