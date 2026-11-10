@@ -175,7 +175,7 @@ jobs:
         with:
           pattern: avelra-release-${{ github.ref_name }}-*
           path: release
-          merge-multiple: true
+          merge-multiple: false
 
       - name: Verify and normalize manifests
         run: |
@@ -184,6 +184,7 @@ jobs:
             cp "$dir/artifacts/"* "$dir/"
             (cd "$dir" && sha256sum -c SHA256SUMS)
             target="$(basename "$dir")"
+            target="${target#avelra-release-${GITHUB_REF_NAME}-}"
             cp "$dir/manifest.json" "release/manifest-${target}.json"
             {
               (cd release && sha256sum "manifest-${target}.json")
