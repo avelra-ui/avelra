@@ -1,0 +1,66 @@
+name: ci-linux-deps
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Nim
+        uses: jiro4989/setup-nim-action@v2
+        with:
+          nim-version: "2.2.12"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake ninja-build pkg-config python3 \
+            libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev
+
+      - name: Build and package Linux SDK
+        run: |
+          ./scripts/build/linux.sh
+          ./scripts/release/build.sh
+
+      - name: Upload Linux release artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: avelra-ci-linux-release
+          path: build/releases
+          retention-days: 7
+          if-no-files-found: error
+
+  docker-deps:
+    needs: build-linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Download Linux release artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: avelra-ci-linux-release
+          path: release
+
+      - name: Run dependency Docker tests
+        run: |
+          sdk="$(find release -name 'avelra-sdk-*-linux-x64.tar.gz' -type f | head -1)"
+          deb="$(find release -name 'avelra_*_amd64.deb' -type f | head -1)"
+          test -n "$sdk"
+          test -n "$deb"
+          ./tests/docker/run.sh --sdk "$sdk" --deb "$deb"
