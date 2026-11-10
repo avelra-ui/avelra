@@ -7,11 +7,15 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 BUILD_DIR="${BUILD_DIR:-$ROOT/build}"
+BIN_DIR="${BIN_DIR:-$BUILD_DIR/bin}"
 LIBEXEC_DIR="${LIBEXEC_DIR:-$BUILD_DIR/libexec/avelra}"
 LIB="$BUILD_DIR/vendor/webview/macos/lib/libwebview.a"
 export BUILD_DIR LIBEXEC_DIR
 
-mkdir -p "$LIBEXEC_DIR" "$BUILD_DIR/nimcache-macos"
+mkdir -p "$BIN_DIR" "$LIBEXEC_DIR" "$BUILD_DIR/nimcache-macos"
+VERSION="$(cat "$ROOT/VERSION")"
+COMMON=(c -d:release --opt:size --mm:orc -d:strip --hints:off
+  --os:macosx --cpu:arm64 --path:src "-d:avelraVersion=$VERSION")
 if [[ ! -f "$LIB" ]]; then
   "$ROOT/scripts/webview/macos.sh"
 fi
@@ -32,6 +36,17 @@ nim c -d:release --opt:size --mm:orc -d:strip --hints:off \
   --passL:"-ldl" \
   --passL:"-lc++" \
   src/avelra.nim
+
+nim "${COMMON[@]}" \
+  --nimcache:"$BUILD_DIR/nimcache-cli" \
+  --out:"$BIN_DIR/avelra" \
+  src/bin/avelra_cli.nim
+
+nim "${COMMON[@]}" \
+  --threads:on \
+  --nimcache:"$BUILD_DIR/nimcache-pack" \
+  --out:"$LIBEXEC_DIR/avelra-pack" \
+  src/bin/avelra_pack.nim
 
 # Keep the local prefix shaped like an SDK even though this experimental
 # script currently builds only the runtime.

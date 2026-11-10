@@ -7,11 +7,18 @@ $Root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Set-Location $Root
 
 $BuildDir = if ($env:BUILD_DIR) { $env:BUILD_DIR } else { Join-Path $Root "build" }
+$BinDir = Join-Path $BuildDir "bin"
 $LibExec = if ($env:LIBEXEC_DIR) { $env:LIBEXEC_DIR } else { Join-Path $BuildDir "libexec/avelra" }
 $Share = Join-Path $BuildDir "share/avelra/templates/app"
 $Lib = Join-Path $BuildDir "vendor/webview/windows/lib/webview_static.lib"
 
-New-Item -ItemType Directory -Force -Path $LibExec, (Join-Path $BuildDir "nimcache-win") | Out-Null
+New-Item -ItemType Directory -Force -Path $BinDir, $LibExec, (Join-Path $BuildDir "nimcache-win") | Out-Null
+$Version = (Get-Content (Join-Path $Root "VERSION") -Raw).Trim()
+$Common = @(
+    "c", "-d:release", "--opt:size", "--mm:orc", "-d:strip", "--hints:off",
+    "--os:windows", "--cpu:amd64", "--cc:vcc", "--path:src",
+    "-d:avelraVersion=$Version"
+)
 if (-not (Test-Path $Lib)) {
     & (Join-Path $Root "scripts/webview/windows.ps1")
 }
@@ -40,6 +47,17 @@ $NimArgs = @(
 )
 
 & nim @NimArgs
+
+& nim @Common `
+    --nimcache:"$(Join-Path $BuildDir 'nimcache-cli')" `
+    --out:"$(Join-Path $BinDir 'avelra.exe')" `
+    src/bin/avelra_cli.nim
+
+& nim @Common `
+    --threads:on `
+    --nimcache:"$(Join-Path $BuildDir 'nimcache-pack')" `
+    --out:"$(Join-Path $LibExec 'avelra-pack.exe')" `
+    src/bin/avelra_pack.nim
 
 # Stage the template so the dev prefix stays a valid SDK layout.
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Share) | Out-Null
