@@ -61,7 +61,10 @@ jobs:
             (cd "$dir" && sha256sum -c SHA256SUMS)
             target="$(basename "$dir")"
             cp "$dir/manifest.json" "release/manifest-${target}.json"
-            cp "$dir/SHA256SUMS" "release/SHA256SUMS-${target}"
+            {
+              (cd release && sha256sum "manifest-${target}.json")
+              (cd "$dir/artifacts" && sha256sum *)
+            } > "release/SHA256SUMS-${target}"
           done
 
       - name: Publish GitHub Release
