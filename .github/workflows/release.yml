@@ -179,6 +179,7 @@ jobs:
         run: |
           for dir in release/*/; do
             test -f "$dir/manifest.json"
+            cp "$dir/artifacts/"* "$dir/"
             (cd "$dir" && sha256sum -c SHA256SUMS)
             target="$(basename "$dir")"
             cp "$dir/manifest.json" "release/manifest-${target}.json"

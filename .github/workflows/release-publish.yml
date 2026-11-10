@@ -49,8 +49,15 @@ jobs:
           gh run download "${INPUTS_RUN_ID}" \
             --pattern "avelra-release-${INPUTS_TAG}-*" \
             --dir release
+          for artifact in release/avelra-release-*; do
+            test -d "$artifact"
+            name="$(basename "$artifact")"
+            target="${name#avelra-release-${INPUTS_TAG}-}"
+            mv "$artifact" "release/$target"
+          done
           for dir in release/*/; do
             test -f "$dir/manifest.json"
+            cp "$dir/artifacts/"* "$dir/"
             (cd "$dir" && sha256sum -c SHA256SUMS)
             target="$(basename "$dir")"
             cp "$dir/manifest.json" "release/manifest-${target}.json"
