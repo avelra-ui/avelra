@@ -13,6 +13,7 @@ import hashlib
 import shutil
 import subprocess
 import sys
+import tempfile
 import tarfile
 import zipfile
 from pathlib import Path
@@ -66,7 +67,7 @@ def main() -> int:
     if final.exists():
         raise SystemExit(f"release already exists: {final}")
     final.parent.mkdir(parents=True, exist_ok=True)
-    stage = Path(shutil.mkdtemp(prefix=".stage.", dir=final.parent))
+    stage = Path(tempfile.mkdtemp(prefix=".stage.", dir=final.parent))
     try:
         tree = stage / "tree"
         (tree / "bin").mkdir(parents=True)
