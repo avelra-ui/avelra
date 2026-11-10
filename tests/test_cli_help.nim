@@ -10,6 +10,7 @@ suite "avelra CLI":
     check result.exitCode == 0
     check result.output.contains("init")
     check result.output.contains("installer")
+    check result.output.contains("doctor")
 
   test "version is printed":
     let result = execCmdEx(cliPath() & " --version")

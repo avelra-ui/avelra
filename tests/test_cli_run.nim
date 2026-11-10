@@ -23,6 +23,7 @@ exit 7
 """)
 setFilePermissions(fake, {fpUserRead, fpUserWrite, fpUserExec})
 putEnv("AVELRA_HOME", root)
+putEnv("AVELRA_SKIP_PREFLIGHT", "1")
 putEnv("AVELRA_FAKE_ARGS", root / "args.txt")
 
 try:
@@ -45,4 +46,5 @@ finally:
   else: delEnv("AVELRA_HOME")
   if oldArgs.len > 0: putEnv("AVELRA_FAKE_ARGS", oldArgs)
   else: delEnv("AVELRA_FAKE_ARGS")
+  delEnv("AVELRA_SKIP_PREFLIGHT")
   removeDir(root)

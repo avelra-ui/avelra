@@ -61,6 +61,7 @@ run_test test_embedded_store
 run_test test_pack_cli
 run_test test_single_exe
 run_test test_bind_error
+run_test test_runtime_deps
 run_test test_cli_config
 run_test test_cli_layout
 run_test test_cli_help

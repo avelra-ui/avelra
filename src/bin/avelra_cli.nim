@@ -2,7 +2,7 @@
 
 import std/[json, os, osproc, strutils]
 
-import cli/[config, layout, project]
+import cli/[config, layout, project, runtime_deps]
 import avelra_version
 
 type
@@ -24,6 +24,7 @@ proc usage() =
   echo "  run                        run the dev runtime"
   echo "  build                      build a single executable"
   echo "  installer --target <name>  build an app installer (tar/deb/appimage)"
+  echo "  doctor                     check Linux runtime dependencies"
   echo ""
   echo "Internal tools: avelra-runtime, avelra-pack, avelra-installer"
 
@@ -158,6 +159,8 @@ proc installerApp(configPath, target, output: string): string =
   build.binary
 
 proc runApp(configPath: string): int =
+  if not runtimePreflight():
+    return 2
   let config = requireConfig(configPath)
   let client = clientDir(configPath, config)
   if not dirExists(client):
@@ -210,6 +213,16 @@ proc main(): int =
     if options.arguments.len > 0:
       raise newException(ValueError, "run takes no arguments")
     return runApp(options.configPath)
+  of "doctor":
+    if options.arguments.len > 0:
+      raise newException(ValueError, "doctor takes no arguments")
+    when defined(linux):
+      let checks = diagnose(linuxRuntimeSpecs())
+      printDoctor(checks)
+      return if failures(checks) == 0: 0 else: 1
+    else:
+      echo "Avelra runtime dependencies: no extra checks on this platform"
+      return 0
   of "build":
     if options.arguments.len > 0:
       raise newException(ValueError, "build takes no arguments")
