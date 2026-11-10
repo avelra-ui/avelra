@@ -151,7 +151,7 @@ elif defined(macosx):
     result = PlatformSnapshot(
       osVersion: execCmdEx("sw_vers -productVersion").output.strip(),
       arch: execCmdEx("uname -m").output.strip(),
-      webKitPresent: fileExists("/System/Library/Frameworks/WebKit.framework")
+      webKitPresent: dirExists("/System/Library/Frameworks/WebKit.framework")
     )
 
 proc printChecks*(title: string; checks: openArray[CheckResult]) =
