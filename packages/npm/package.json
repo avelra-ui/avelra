@@ -1,7 +1,7 @@
 {
   "name": "avelra",
-  "version": "0.0.1",
-  "description": "Avelra UI — fast, light desktop apps. Development preview.",
+  "version": "0.1.0",
+  "description": "Avelra UI — desktop apps with a tiny native runtime.",
   "license": "MIT",
   "private": false,
   "homepage": "https://avelra.dev",
@@ -14,5 +14,15 @@
   ],
   "engines": {
     "node": ">=20"
-  }
+  },
+  "bin": {
+    "avelra": "bin/avelra.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "platform",
+    "README.md",
+    "LICENSE"
+  ]
 }

@@ -167,6 +167,8 @@ jobs:
     steps:
       - name: Checkout release notes
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Download all platform artifacts
         uses: actions/download-artifact@v8
@@ -189,6 +191,13 @@ jobs:
             } > "release/SHA256SUMS-${target}"
           done
 
+      - name: Build npm tarball
+        run: |
+          mkdir -p npm-input release/npm
+          find release -path '*/artifacts/*' -type f \( -name '*.tar.gz' -o -name '*.zip' \) -exec cp {} npm-input/ \;
+          ./scripts/package/npm-universal.sh "$PWD/npm-input" "$PWD/release/npm"
+          sha256sum release/npm/*.tgz > release/SHA256SUMS-npm
+
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -201,6 +210,7 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             release/manifest-*.json \
             release/SHA256SUMS-* \
+            release/npm/*.tgz \
             release/*/artifacts/* \
             --verify-tag \
             --title "Avelra ${version}" \
