@@ -32,10 +32,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-      - uses: jiro4989/setup-nim-action@v2
-        with:
-          nim-version: "2.2.12"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install prebuilt Nim
+        run: ./scripts/ci/install-nim-macos.sh 2.2.12
       - name: Build CLI and run doctor
         run: |
           version="$(cat VERSION)"
