@@ -2,7 +2,11 @@
 
 import std/[json, os, osproc, strutils]
 
-import cli/[config, layout, project, runtime_deps]
+import cli/[config, layout, project]
+when defined(linux):
+  import cli/runtime_deps
+when defined(windows) or defined(macosx):
+  import cli/platform_checks
 import avelra_version
 
 type
@@ -159,8 +163,12 @@ proc installerApp(configPath, target, output: string): string =
   build.binary
 
 proc runApp(configPath: string): int =
-  if not runtimePreflight():
-    return 2
+  when defined(linux):
+    if not runtimePreflight():
+      return 2
+  elif defined(windows) or defined(macosx):
+    if not platformPreflight():
+      return 2
   let config = requireConfig(configPath)
   let client = clientDir(configPath, config)
   if not dirExists(client):
@@ -219,6 +227,14 @@ proc main(): int =
     when defined(linux):
       let checks = diagnose(linuxRuntimeSpecs())
       printDoctor(checks)
+      return if failures(checks) == 0: 0 else: 1
+    elif defined(windows):
+      let checks = evaluateWindows(windowsSnapshot())
+      printChecks("Avelra runtime dependencies (Windows)", checks)
+      return if failures(checks) == 0: 0 else: 1
+    elif defined(macosx):
+      let checks = evaluateMacos(macosSnapshot())
+      printChecks("Avelra runtime dependencies (macOS)", checks)
       return if failures(checks) == 0: 0 else: 1
     else:
       echo "Avelra runtime dependencies: no extra checks on this platform"
