@@ -44,6 +44,22 @@ try:
         check info.contains("Architecture: amd64")
         check info.contains("Depends: zenity")
 
+    test "default app-dir deb declares GTK/WebKit runtime deps":
+      if findExe("dpkg-deb").len == 0:
+        check true
+      else:
+        let appDir = root / "appdir-default-deps"
+        createDir(appDir / "bin")
+        copyFile("/bin/true", appDir / "bin" / "demo-app")
+        var appConfig = defaultConfig("Demo App")
+        appConfig.identifier = "com.example.demo"
+        saveConfig(appDir / "avelra.config.json", appConfig)
+        let output = root / "appdir-default-deps.deb"
+        discard buildAppInstaller(appDir, installerDeb, output)
+        let info = execCmdEx("dpkg-deb -I " & output).output
+        check info.contains("libgtk-3-0t64 | libgtk-3-0")
+        check info.contains("libwebkit2gtk-4.1-0")
+
     test "app-dir appimage reports a missing appimagetool":
       let appDir = root / "appdir-appimage"
       createDir(appDir / "bin")

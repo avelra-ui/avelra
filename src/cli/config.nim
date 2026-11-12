@@ -25,6 +25,11 @@ type
     window*: WindowConfig
     extensions*: seq[ExtensionConfig]
 
+const defaultLinuxDebDepends* = [
+  "libgtk-3-0t64 | libgtk-3-0",
+  "libwebkit2gtk-4.1-0"
+]
+
 proc slugify*(value: string): string =
   ## Stable lowercase identifier used for package/output directories.
   var previousDash = false
@@ -46,7 +51,7 @@ proc defaultConfig*(name = "my-app"): AppConfig =
     identifier: "com.example." & slugify(name),
     client: "client",
     icon: "",
-    linuxDebDepends: @[],
+    linuxDebDepends: @defaultLinuxDebDepends,
     window: WindowConfig(title: name, width: 600, height: 400),
     extensions: @[]
   )
@@ -183,17 +188,19 @@ proc loadConfig*(path: string): AppConfig =
   result.client = optionalString(node, "client", "client")
   result.icon = optionalString(node, "icon", "")
 
+  result.linuxDebDepends = @defaultLinuxDebDepends
   if node.hasKey("linuxDebDepends"):
     if node["linuxDebDepends"].kind != JArray:
       raise newException(ValueError,
         "config field 'linuxDebDepends' must be an array")
+    result.linuxDebDepends = @[]
     for item in node["linuxDebDepends"]:
       if item.kind != JString or item.getStr().len == 0:
         raise newException(ValueError,
           "linuxDebDepends entries must be non-empty strings")
       let dependency = item.getStr()
       for ch in dependency:
-        if ch notin {'a' .. 'z', '0' .. '9', '+', '-', '.', ':'}:
+        if ch notin {'a' .. 'z', '0' .. '9', '+', '-', '.', ':', '|', ' '}:
           raise newException(ValueError,
             "invalid Debian dependency: " & dependency)
       result.linuxDebDepends.add dependency

@@ -1,6 +1,6 @@
 ## CLI config parsing tests.
 
-import std/[os, unittest]
+import std/[os, sequtils, unittest]
 
 import cli/config
 
@@ -20,6 +20,7 @@ try:
       check config.identifier == "com.example.demo"
       check config.client == "client"
       check config.window.width == 600
+      check config.linuxDebDepends.contains("libwebkit2gtk-4.1-0")
 
     test "save and load round-trip":
       let path = root / "avelra.config.json"
@@ -36,6 +37,13 @@ try:
       check loaded.linuxDebDepends == @["zenity", "libgtk-3-0"]
       check loaded.window.width == 800
       check clientDir(path, loaded) == root / "client"
+
+    test "missing linuxDebDepends gets runtime defaults":
+      let path = root / "default-deps.json"
+      writeFile(path, """{"name":"Demo"}""")
+      let loaded = loadConfig(path)
+      check loaded.linuxDebDepends.contains("libwebkit2gtk-4.1-0")
+      check loaded.linuxDebDepends.contains("libgtk-3-0t64 | libgtk-3-0")
 
     test "missing name is rejected":
       let path = root / "bad.json"
