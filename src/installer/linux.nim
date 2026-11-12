@@ -40,7 +40,8 @@ proc desktopEntry(config: AppConfig; slug, iconName: string): string =
     "Name=" & config.name & "\n" &
     "Exec=" & slug & "\n" &
     "Terminal=false\n" &
-    "Categories=Utility;\n"
+    "Categories=Utility;\n" &
+    "StartupWMClass=" & slug & "\n"
   if iconName.len > 0:
     result.add "Icon=" & iconName & "\n"
 
@@ -69,21 +70,22 @@ proc defaultOutput(configPath: string; config: AppConfig; target: InstallerTarge
 
 proc buildTar(binary, configPath: string; config: AppConfig; output: string) =
   let staging = getTempDir() / ("avelra-tar-" & $getCurrentProcessId())
-  let bundleName = slugify(config.name) & "-" & config.version
+  let slug = slugify(config.name)
+  let bundleName = slug & "-" & config.version
   let bundle = staging / bundleName
   removeDir(staging)
   createDir(bundle)
   try:
-    copyExecutable(binary, bundle / slugify(config.name))
+    copyExecutable(binary, bundle / slug)
     let icon = iconSource(configPath, config)
     let hasIcon = icon.len > 0
-    let desktop = bundle / "share" / "applications" / (config.identifier & ".desktop")
+    let desktop = bundle / "share" / "applications" / (slug & ".desktop")
     createDir(parentDir(desktop))
-    writeFile(desktop, desktopEntry(config, slugify(config.name),
-      if hasIcon: config.identifier else: ""))
+    writeFile(desktop, desktopEntry(config, slug,
+      if hasIcon: slug else: ""))
     if hasIcon:
       installIcon(icon, bundle / "share" / "icons" / "hicolor" / "256x256" /
-        "apps" / (config.identifier & ".png"))
+        "apps" / (slug & ".png"))
     let result = execCmdEx(quoteShellCommand([
       "tar", "-czf", output, "-C", staging, bundleName
     ]))
@@ -103,13 +105,13 @@ proc buildDeb(binary, configPath: string; config: AppConfig; output: string) =
     let icon = iconSource(configPath, config)
     let hasIcon = icon.len > 0
     let desktop = root / "usr" / "share" / "applications" /
-      (config.identifier & ".desktop")
+      (slug & ".desktop")
     createDir(parentDir(desktop))
     writeFile(desktop, desktopEntry(config, slug,
-      if hasIcon: config.identifier else: ""))
+      if hasIcon: slug else: ""))
     if hasIcon:
       installIcon(icon, root / "usr" / "share" / "icons" / "hicolor" /
-        "256x256" / "apps" / (config.identifier & ".png"))
+        "256x256" / "apps" / (slug & ".png"))
 
     let architecture = block:
       let probe = execCmdEx("dpkg --print-architecture")
@@ -223,13 +225,13 @@ proc buildAppTar(appDir, configPath: string; config: AppConfig; output: string) 
     let icon = iconSource(configPath, config)
     let hasIcon = icon.len > 0
     let desktop = bundle / "share" / "applications" /
-      (config.identifier & ".desktop")
+      (slug & ".desktop")
     createDir(parentDir(desktop))
     writeFile(desktop, desktopEntry(config, slug,
-      if hasIcon: config.identifier else: ""))
+      if hasIcon: slug else: ""))
     if hasIcon:
       installIcon(icon, bundle / "share" / "icons" / "hicolor" / "256x256" /
-        "apps" / (config.identifier & ".png"))
+        "apps" / (slug & ".png"))
     let result = execCmdEx(quoteShellCommand([
       "tar", "-czf", output, "-C", staging, bundleName
     ]))
@@ -253,13 +255,13 @@ proc buildAppDeb(appDir, configPath: string; config: AppConfig; output: string) 
     let icon = iconSource(configPath, config)
     let hasIcon = icon.len > 0
     let desktop = root / "usr" / "share" / "applications" /
-      (config.identifier & ".desktop")
+      (slug & ".desktop")
     createDir(parentDir(desktop))
     writeFile(desktop, desktopEntry(config, slug,
-      if hasIcon: config.identifier else: ""))
+      if hasIcon: slug else: ""))
     if hasIcon:
       installIcon(icon, root / "usr" / "share" / "icons" / "hicolor" /
-        "256x256" / "apps" / (config.identifier & ".png"))
+        "256x256" / "apps" / (slug & ".png"))
 
     let architecture = block:
       let probe = execCmdEx("dpkg --print-architecture")

@@ -28,8 +28,8 @@ try:
       check fileExists(output)
       let listing = execCmdEx("tar -tzf " & output).output
       check listing.contains("app")
-      check listing.contains("share/applications/com.example.demo.desktop")
-      check listing.contains("share/icons/hicolor/256x256/apps/com.example.demo.png")
+      check listing.contains("share/applications/demo-app.desktop")
+      check listing.contains("share/icons/hicolor/256x256/apps/demo-app.png")
 
     test "deb has the expected control metadata":
       if findExe("dpkg-deb").len == 0:
@@ -108,9 +108,11 @@ try:
       let appDir = root / "appdir-deb"
       createDir(appDir / "bin")
       copyFile("/bin/true", appDir / "bin" / "demo-app")
+      copyFile(icon, appDir / "icon.png")
       var appConfig = defaultConfig("Demo App")
       appConfig.version = "1.2.3"
       appConfig.identifier = "com.example.demo"
+      appConfig.icon = "icon.png"
       saveConfig(appDir / "avelra.config.json", appConfig)
       let output = root / "appdir.deb"
       discard buildAppInstaller(appDir, installerDeb, output)
@@ -118,6 +120,8 @@ try:
       check listing.contains("./usr/lib/demo-app/demo-app")
       check listing.contains("./usr/bin/demo-app")
       check listing.contains("./usr/lib/demo-app/avelra.config.json")
+      check listing.contains("./usr/share/applications/demo-app.desktop")
+      check listing.contains("./usr/share/icons/hicolor/256x256/apps/demo-app.png")
 
     test "missing binary is rejected":
       expect IOError:
