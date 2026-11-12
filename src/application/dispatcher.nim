@@ -6,13 +6,14 @@
 import std/[strutils, tables]
 
 import domain/native_call
-import ports/[env_port, extension_port, loading_port, quit_port]
+import ports/[env_port, extension_port, external_port, loading_port, quit_port]
 
 type
   HandlerContext* = ref object
     ## Shared dependencies passed to every handler. Extending this object is the
     ## preferred way to give handlers access to new ports.
     env*: EnvPort
+    external*: ExternalPort
     loading*: LoadingPort
     extensions*: ExtensionPort
     quit*: QuitPort
@@ -26,11 +27,12 @@ type
     ctx*: HandlerContext
 
 proc newHandlerContext*(env: EnvPort; loading: LoadingPort;
+                        external: ExternalPort = ExternalPort();
                         extensions: ExtensionPort = nil;
                         quit: QuitPort = QuitPort()): HandlerContext =
   ## Builds the dependency bundle used by handlers.
-  HandlerContext(env: env, loading: loading, extensions: extensions,
-                 quit: quit)
+  HandlerContext(env: env, external: external, loading: loading,
+                 extensions: extensions, quit: quit)
 
 proc newDispatcher*(ctx: HandlerContext): Dispatcher =
   ## Creates an empty registry; handlers are added with `register`.

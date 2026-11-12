@@ -24,6 +24,8 @@ try:
       check readFile(app / "client" / "index.html").contains("~0.5 MiB runtime")
       check readFile(app / "client" / "index.html").contains("https://avelra.dev/docs/")
       check readFile(app / "client" / "index.html").contains("https://github.com/avelra-ui/avelra")
+      check readFile(app / "client" / "index.html").contains("data-external")
+      check readFile(app / "client" / "app.js").contains("os.openExternal")
       check fileExists(configPath)
       check readFile(configPath).contains("\"name\": \"demo\"")
 

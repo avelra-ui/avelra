@@ -6,13 +6,14 @@ import std/[json, unittest]
 import application/dispatcher
 import application/handlers/[app_handlers, os_handlers]
 import domain/native_call
-import ports/[env_port, loading_port, quit_port]
+import ports/[env_port, external_port, loading_port, quit_port]
 
 type
   TestState = ref object
     ## Reference type so port closures can mutate test state.
     hidden: bool
     quit: bool
+    externalUrl: string
 
 proc makeDispatcher(state: TestState): Dispatcher =
   let env = EnvPort(
@@ -21,8 +22,14 @@ proc makeDispatcher(state: TestState): Dispatcher =
   let loading = LoadingPort(
     hide: proc() = state.hidden = true
   )
+  let external = ExternalPort(
+    open: proc(url: string): bool =
+      state.externalUrl = url
+      true
+  )
   let quit = QuitPort(quit: proc() = state.quit = true)
-  result = newDispatcher(newHandlerContext(env, loading, quit = quit))
+  result = newDispatcher(newHandlerContext(env, loading, external = external,
+    quit = quit))
   result.registerAppHandlers()
   result.registerOsHandlers()
 
@@ -46,6 +53,27 @@ suite "dispatcher":
 
     check response.success
     check response.returnValue.getStr == "env:HOME"
+
+  test "os.openExternal forwards an http URL to the external port":
+    let state = TestState()
+    let dispatcher = makeDispatcher(state)
+    let response = dispatcher.dispatch(
+      NativeCall(nativeMethod: "os.openExternal",
+        data: %*{"url": "https://avelra.dev/docs/"})
+    )
+
+    check response.success
+    check state.externalUrl == "https://avelra.dev/docs/"
+
+  test "os.openExternal rejects non-http schemes":
+    let dispatcher = makeDispatcher(TestState())
+    let response = dispatcher.dispatch(
+      NativeCall(nativeMethod: "os.openExternal",
+        data: %*{"url": "file:///etc/passwd"})
+    )
+
+    check not response.success
+    check response.error.code == ErrInvalidRequest
 
   test "unknown methods return the documented error code":
     let dispatcher = makeDispatcher(TestState())

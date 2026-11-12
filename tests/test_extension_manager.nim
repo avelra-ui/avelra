@@ -79,7 +79,7 @@ try:
     test "dispatcher routes ext.* through the port":
       let manager = newExtensionManager(@[makeConfig()], root)
       let dispatcher = newDispatcher(newHandlerContext(
-        EnvPort(), LoadingPort(), manager.extensionPort()
+        EnvPort(), LoadingPort(), extensions = manager.extensionPort()
       ))
       let response = dispatcher.dispatch(NativeCall(
         nativeMethod: "ext.echo.echo",

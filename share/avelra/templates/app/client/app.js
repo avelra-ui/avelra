@@ -73,6 +73,22 @@ function reportReady() {
   }));
 }
 
+for (const link of document.querySelectorAll("a[data-external]")) {
+  link.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const url = link.href;
+    if (typeof window.nativeCall === "function") {
+      try {
+        await window.nativeCall({ method: "os.openExternal", data: { url } });
+      } catch (error) {
+        window.location.href = url;
+      }
+    } else {
+      window.open(url, "_blank", "noopener");
+    }
+  });
+}
+
 valueInput.addEventListener("input", syncCode);
 pingButton.addEventListener("click", ping);
 syncCode();
