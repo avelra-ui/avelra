@@ -17,6 +17,10 @@ try:
       let configPath = initProject(app, templateDirPath)
       check fileExists(app / "client" / "index.html")
       check fileExists(app / "client" / "app.js")
+      check fileExists(app / "client" / "avelra-lockup.svg")
+      check fileExists(app / "icon.png")
+      check readFile(app / "client" / "index.html").contains("brand-lockup")
+      check readFile(app / "client" / "index.html").contains("avelra-lockup.svg")
       check fileExists(configPath)
       check readFile(configPath).contains("\"name\": \"demo\"")
 

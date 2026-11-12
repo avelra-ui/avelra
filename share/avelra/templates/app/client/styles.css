@@ -64,21 +64,10 @@ body {
   border-bottom: 1px solid var(--line);
 }
 
-.brand {
-  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
-  font-size: 46px;
-  font-weight: 600;
-  letter-spacing: -2.8px;
-  line-height: .9;
-  transform: skewX(-6deg);
-  transform-origin: left center;
-}
-
-.vel {
-  background: linear-gradient(90deg, #2050ff, var(--violet), var(--cyan));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.brand-lockup {
+  display: block;
+  height: 46px;
+  width: auto;
 }
 
 .version {
