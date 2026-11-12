@@ -21,6 +21,9 @@ try:
       check fileExists(app / "icon.png")
       check readFile(app / "client" / "index.html").contains("brand-lockup")
       check readFile(app / "client" / "index.html").contains("avelra-lockup.svg")
+      check readFile(app / "client" / "index.html").contains("~0.5 MiB runtime")
+      check readFile(app / "client" / "index.html").contains("https://avelra.dev/docs/")
+      check readFile(app / "client" / "index.html").contains("https://github.com/avelra-ui/avelra")
       check fileExists(configPath)
       check readFile(configPath).contains("\"name\": \"demo\"")
 
