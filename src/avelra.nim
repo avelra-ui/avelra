@@ -6,7 +6,7 @@
 import std/[json, os, strutils]
 
 import adapters/http/[resource_store, static_server]
-import adapters/system/[env, external]
+import adapters/system/[env, url_open]
 import application/dispatcher
 import ports/quit_port
 import application/handlers/[app_handlers, os_handlers]
@@ -177,7 +177,7 @@ when isMainModule:
 
       let context = newHandlerContext(
         env = systemEnv(),
-        external = systemExternal(),
+        urlOpen = systemUrlOpen(),
         loading = loading,
         extensions = extensionPort,
         quit = QuitPort(quit: proc() = window.close())

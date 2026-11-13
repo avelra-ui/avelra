@@ -24,8 +24,10 @@ try:
       check readFile(app / "client" / "index.html").contains("~0.5 MiB runtime")
       check readFile(app / "client" / "index.html").contains("https://avelra.dev/docs/")
       check readFile(app / "client" / "index.html").contains("https://github.com/avelra-ui/avelra")
-      check readFile(app / "client" / "index.html").contains("data-external")
-      check readFile(app / "client" / "app.js").contains("os.openExternal")
+      check readFile(app / "client" / "index.html").contains("data-open-url")
+      check readFile(app / "client" / "app.js").contains("os.openUrl")
+      check readFile(app / "client" / "app.js").contains("showUrlOpenError")
+      check readFile(app / "client" / "index.html").contains("id=\"url-open-error\"")
       check fileExists(configPath)
       check readFile(configPath).contains("\"name\": \"demo\"")
 

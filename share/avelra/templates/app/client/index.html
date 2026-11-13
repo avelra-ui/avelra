@@ -38,9 +38,9 @@
         </section>
 
         <nav class="links" aria-label="Avelra links">
-          <a href="https://avelra.dev/docs/" target="_blank" rel="noopener noreferrer" data-external>Docs <span>↗</span></a>
-          <a href="https://github.com/avelra-ui/avelra" target="_blank" rel="noopener noreferrer" data-external>GitHub <span>↗</span></a>
-          <a href="https://github.com/avelra-ui/avelra/tree/main/examples" target="_blank" rel="noopener noreferrer" data-external>Examples <span>↗</span></a>
+          <a href="https://avelra.dev/docs/" target="_blank" rel="noopener noreferrer" data-open-url>Docs <span>↗</span></a>
+          <a href="https://github.com/avelra-ui/avelra" target="_blank" rel="noopener noreferrer" data-open-url>GitHub <span>↗</span></a>
+          <a href="https://github.com/avelra-ui/avelra/tree/main/examples" target="_blank" rel="noopener noreferrer" data-open-url>Examples <span>↗</span></a>
         </nav>
       </section>
 
@@ -75,6 +75,17 @@
       <span>Built with Avelra</span>
       <span>tiny runtime · system WebView</span>
     </footer>
+  </div>
+  <div class="modal-backdrop" id="url-open-error" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="link-error-title">
+      <p class="eyebrow">OPEN LINK</p>
+      <h2 id="url-open-error-title">Could not open your browser.</h2>
+      <p class="modal-copy">The link was not opened. Copy the address and open it manually:</p>
+      <code class="modal-url" id="url-open-error-url"></code>
+      <div class="modal-actions">
+        <button id="url-open-error-close" type="button">Close</button>
+      </div>
+    </div>
   </div>
   <script src="app.js"></script>
 </body>

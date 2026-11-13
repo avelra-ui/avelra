@@ -3,6 +3,9 @@ const resultEl = document.getElementById("result");
 const pingButton = document.getElementById("ping");
 const valueInput = document.getElementById("value");
 const codeValue = document.getElementById("code-value");
+const urlOpenError = document.getElementById("url-open-error");
+const urlOpenErrorUrl = document.getElementById("url-open-error-url");
+const urlOpenErrorClose = document.getElementById("url-open-error-close");
 
 function readValue() {
   const value = Number(valueInput.value);
@@ -73,15 +76,37 @@ function reportReady() {
   }));
 }
 
-for (const link of document.querySelectorAll("a[data-external]")) {
+function showUrlOpenError(url) {
+  urlOpenErrorUrl.textContent = url;
+  urlOpenError.hidden = false;
+  urlOpenErrorClose.focus();
+}
+
+function hideUrlOpenError() {
+  urlOpenError.hidden = true;
+}
+
+urlOpenErrorClose.addEventListener("click", hideUrlOpenError);
+urlOpenError.addEventListener("click", (event) => {
+  if (event.target === urlOpenError) {
+    hideUrlOpenError();
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !urlOpenError.hidden) {
+    hideUrlOpenError();
+  }
+});
+
+for (const link of document.querySelectorAll("a[data-open-url]")) {
   link.addEventListener("click", async (event) => {
     event.preventDefault();
     const url = link.href;
     if (typeof window.nativeCall === "function") {
       try {
-        await window.nativeCall({ method: "os.openExternal", data: { url } });
+        await window.nativeCall({ method: "os.openUrl", data: { url } });
       } catch (error) {
-        window.location.href = url;
+        showUrlOpenError(url);
       }
     } else {
       window.open(url, "_blank", "noopener");
