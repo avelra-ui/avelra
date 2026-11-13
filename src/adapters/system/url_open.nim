@@ -4,6 +4,9 @@ import std/[os, osproc]
 
 import ports/url_open_port
 
+const
+  HandlerWaitMs = 2000
+
 proc runHandler(command: string; args: openArray[string]): bool =
   ## Waits for the system handler so its exit status is observable.
   if findExe(command).len == 0:
@@ -12,7 +15,9 @@ proc runHandler(command: string; args: openArray[string]): bool =
   try:
     process = startProcess(command, args = args,
       options = {poUsePath, poStdErrToStdOut})
-    result = waitForExit(process) == 0
+    # Keep the UI responsive when a platform handler blocks on its child
+    # process. A timeout is treated as failure and surfaces the URL error.
+    result = waitForExit(process, HandlerWaitMs) == 0
   except OSError:
     result = false
   finally:
