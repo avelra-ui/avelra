@@ -76,6 +76,17 @@ function reportReady() {
   }));
 }
 
+async function openUrl(url) {
+  const response = await window.nativeCall({
+    method: "os.openUrl",
+    data: { url }
+  });
+  if (!response || response.success !== true) {
+    throw new Error((response && response.error && response.error.message) ||
+      "could not open URL");
+  }
+}
+
 function showUrlOpenError(url) {
   urlOpenErrorUrl.textContent = url;
   urlOpenError.hidden = false;
@@ -104,7 +115,7 @@ for (const link of document.querySelectorAll("a[data-open-url]")) {
     const url = link.href;
     if (typeof window.nativeCall === "function") {
       try {
-        await window.nativeCall({ method: "os.openUrl", data: { url } });
+        await openUrl(url);
       } catch (error) {
         showUrlOpenError(url);
       }

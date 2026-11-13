@@ -27,6 +27,7 @@ try:
       check readFile(app / "client" / "index.html").contains("data-open-url")
       check readFile(app / "client" / "app.js").contains("os.openUrl")
       check readFile(app / "client" / "app.js").contains("showUrlOpenError")
+      check readFile(app / "client" / "app.js").contains("response.success")
       check readFile(app / "client" / "index.html").contains("id=\"url-open-error\"")
       check fileExists(configPath)
       check readFile(configPath).contains("\"name\": \"demo\"")
