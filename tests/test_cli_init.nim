@@ -30,6 +30,7 @@ try:
       check readFile(app / "client" / "app.js").contains("app.healthCheck")
       check readFile(app / "client" / "app.js").contains("renderHealth")
       check readFile(app / "client" / "index.html").contains("HEALTH CHECK")
+      check readFile(app / "client" / "index.html").contains("method: \"app.healthCheck\"")
       check readFile(app / "client" / "app.js").contains("response.success")
       check readFile(app / "client" / "index.html").contains("id=\"url-open-error\"")
       check fileExists(configPath)
