@@ -6,7 +6,7 @@
 import std/[strutils, tables]
 
 import domain/native_call
-import ports/[env_port, extension_port, loading_port, quit_port, url_open_port]
+import ports/[env_port, extension_port, health_port, loading_port, quit_port, url_open_port]
 
 type
   HandlerContext* = ref object
@@ -14,6 +14,7 @@ type
     ## preferred way to give handlers access to new ports.
     env*: EnvPort
     urlOpen*: UrlOpenPort
+    health*: HealthPort
     loading*: LoadingPort
     extensions*: ExtensionPort
     quit*: QuitPort
@@ -28,11 +29,12 @@ type
 
 proc newHandlerContext*(env: EnvPort; loading: LoadingPort;
                         urlOpen: UrlOpenPort = UrlOpenPort();
+                        health: HealthPort = HealthPort();
                         extensions: ExtensionPort = nil;
                         quit: QuitPort = QuitPort()): HandlerContext =
   ## Builds the dependency bundle used by handlers.
-  HandlerContext(env: env, urlOpen: urlOpen, loading: loading,
-                 extensions: extensions, quit: quit)
+  HandlerContext(env: env, urlOpen: urlOpen, health: health,
+                 loading: loading, extensions: extensions, quit: quit)
 
 proc newDispatcher*(ctx: HandlerContext): Dispatcher =
   ## Creates an empty registry; handlers are added with `register`.

@@ -293,6 +293,10 @@ proc startStaticServer*(store: ResourceStore; workerCount = DefaultWorkers): Sta
 
   result.started = true
 
+proc isRunning*(server: StaticServer): bool =
+  ## Reports whether the accept thread is still active.
+  server.running.load()
+
 proc url*(server: StaticServer): string =
   ## Base URL for the WebView.
   "http://127.0.0.1:" & $int(server.port) & "/" & server.token & "/"

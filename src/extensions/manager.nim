@@ -5,7 +5,7 @@ import std/[json, tables, strutils]
 import cli/config
 import domain/native_call
 import extensions/host
-import ports/extension_port
+import ports/[extension_port, health_port]
 
 type
   ExtensionEventHandler* = proc(eventName: string; data: JsonNode) {.closure.}
@@ -15,6 +15,7 @@ type
     configs: Table[string, ExtensionConfig]
     hosts: Table[string, ExtensionHost]
     busy: Table[string, bool]
+    lastErrors: Table[string, string]
     onEvent: ExtensionEventHandler
 
 proc newExtensionManager*(extensions: seq[ExtensionConfig]; appDir: string;
@@ -24,6 +25,7 @@ proc newExtensionManager*(extensions: seq[ExtensionConfig]; appDir: string;
     configs: initTable[string, ExtensionConfig](),
     hosts: initTable[string, ExtensionHost](),
     busy: initTable[string, bool](),
+    lastErrors: initTable[string, string](),
     onEvent: onEvent
   )
   for config in extensions:
@@ -31,6 +33,25 @@ proc newExtensionManager*(extensions: seq[ExtensionConfig]; appDir: string;
 
 proc setEventSink*(manager: ExtensionManager; sink: ExtensionEventHandler) =
   manager.onEvent = sink
+
+proc extensionStateName(state: ExtensionState): string =
+  case state
+  of esReady: "running"
+  of esStarting: "starting"
+  of esCrashed: "failed"
+  of esStopped, esStopping: "stopped"
+
+proc health*(manager: ExtensionManager): seq[HealthExtension] =
+  ## Reads current extension state without starting any host.
+  for id in manager.configs.keys:
+    var entry = HealthExtension(id: id, status: "stopped", protocol: 0)
+    if manager.hosts.hasKey(id):
+      let host = manager.hosts[id]
+      entry.status = extensionStateName(host.state)
+      entry.protocol = host.handshake.protocol
+    if manager.lastErrors.hasKey(id):
+      entry.lastErrorCode = manager.lastErrors[id]
+    result.add entry
 
 proc splitMethod(methodName: string): tuple[id, name: string] =
   if not methodName.startsWith("ext."):
@@ -72,25 +93,32 @@ proc dispatch*(manager: ExtensionManager; methodName: string;
   try:
     host = manager.ensureHost(id)
   except ExtensionStartError as exc:
+    manager.lastErrors[id] = ErrExtensionUnavailable
     return fail(ErrExtensionUnavailable, exc.msg)
   except ExtensionProtocolError as exc:
+    manager.lastErrors[id] = ErrExtensionFailed
     return fail(ErrExtensionFailed, exc.msg)
   except ExtensionHostError as exc:
+    manager.lastErrors[id] = ErrExtensionFailed
     return fail(ErrExtensionFailed, exc.msg)
 
   manager.busy[id] = true
   try:
     let response = host.request(extensionMethod, data,
       timeoutMs = manager.configs[id].requestTimeoutMs)
+    manager.lastErrors.del(id)
     return ok(response)
   except ExtensionRpcError as exc:
+    manager.lastErrors[id] = ErrExtensionFailed
     return fail(ErrExtensionFailed, exc.msg)
   except ExtensionTimeoutError as exc:
     manager.hosts.del(id)
+    manager.lastErrors[id] = ErrExtensionFailed
     stopExtension(host)
     return fail(ErrExtensionFailed, exc.msg)
   except ExtensionHostError as exc:
     manager.hosts.del(id)
+    manager.lastErrors[id] = ErrExtensionFailed
     stopExtension(host)
     return fail(ErrExtensionFailed, exc.msg)
   finally:

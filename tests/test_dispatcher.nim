@@ -6,7 +6,7 @@ import std/[json, unittest]
 import application/dispatcher
 import application/handlers/[app_handlers, os_handlers]
 import domain/native_call
-import ports/[env_port, loading_port, quit_port, url_open_port]
+import ports/[env_port, health_port, loading_port, quit_port, url_open_port]
 
 type
   TestState = ref object
@@ -28,9 +28,25 @@ proc makeDispatcher(state: TestState): Dispatcher =
       state.openedUrl = url
       not state.failOpen
   )
+  let healthSnapshot = proc(): HealthSnapshot =
+    HealthSnapshot(
+      appName: "demo",
+      appVersion: "1.0.0",
+      identifier: "com.example.demo",
+      runtimeVersion: "0.2.0",
+      protocol: 1,
+      startedAt: "2026-01-01T00:00:00Z",
+      uptimeMs: 1000,
+      platformOs: "linux",
+      platformArch: "amd64",
+      webview: "webkitgtk-4.1",
+      status: hsOk,
+      checks: @[HealthCheck(id: "config", status: hsOk, message: "")],
+      extensions: @[])
+  let health = HealthPort(snapshot: healthSnapshot)
   let quit = QuitPort(quit: proc() = state.quit = true)
   result = newDispatcher(newHandlerContext(env, loading, urlOpen = urlOpen,
-    quit = quit))
+    health = health, quit = quit))
   result.registerAppHandlers()
   result.registerOsHandlers()
 
@@ -65,6 +81,18 @@ suite "dispatcher":
 
     check response.success
     check state.openedUrl == "https://avelra.dev/docs/"
+
+  test "app.healthCheck serializes runtime health":
+    let dispatcher = makeDispatcher(TestState())
+    let response = dispatcher.dispatch(
+      NativeCall(nativeMethod: "app.healthCheck", data: newJNull())
+    )
+
+    check response.success
+    check response.returnValue["status"].getStr == "ok"
+    check response.returnValue["healthy"].getBool
+    check response.returnValue["app"]["name"].getStr == "demo"
+    check response.returnValue["checks"][0]["id"].getStr == "config"
 
   test "os.openUrl reports a failed browser launch":
     let state = TestState(failOpen: true)

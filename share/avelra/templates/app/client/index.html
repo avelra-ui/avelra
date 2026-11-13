@@ -44,30 +44,25 @@
         </nav>
       </section>
 
-      <section class="bridge" aria-live="polite">
+      <section class="bridge health" aria-live="polite">
         <div class="bridge-top">
-          <span class="label">NATIVE BRIDGE</span>
-          <span class="state" id="status">connecting…</span>
+          <span class="label">HEALTH CHECK</span>
+          <span class="state" id="status">checking…</span>
         </div>
 
-        <p class="hint">The client calls a native method and gets a result back.</p>
+        <p class="hint">Runtime and app checks from <code>app.healthCheck</code>.</p>
 
-        <pre class="call">await window.nativeCall({
-  method: "app.ping",
-  data: { value: <span id="code-value">42</span> }
-})</pre>
-
-        <p class="section-label controls-label">Change the value and call native.</p>
-
-        <div class="controls">
-          <label class="field" for="value">value</label>
-          <input id="value" type="number" value="42" step="1">
-          <button id="ping" type="button">Call native</button>
+        <div class="health-headline">
+          <strong id="health-app">—</strong>
+          <span id="health-meta">—</span>
         </div>
 
-        <p class="section-label">Result</p>
+        <div class="health-checks" id="health-checks"></div>
 
-        <div id="result" class="result">Waiting for app.ping…</div>
+        <div class="health-footer">
+          <span id="health-uptime"></span>
+          <button id="health-refresh" type="button">Check again</button>
+        </div>
       </section>
     </main>
 

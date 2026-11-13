@@ -232,8 +232,20 @@ code {
   content: "● ";
 }
 
+.state.degraded {
+  color: #a15c00;
+}
+
+.state.degraded::before {
+  content: "● ";
+}
+
 .state.error {
   color: #b42318;
+}
+
+.state.error::before {
+  content: "● ";
 }
 
 .hint {
@@ -245,6 +257,71 @@ code {
 
 .hint strong {
   color: var(--ink);
+}
+
+.health-headline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 16px 0;
+}
+
+.health-headline strong {
+  font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.8px;
+}
+
+.health-headline span {
+  color: var(--muted);
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 11px;
+}
+
+.health-checks {
+  border-top: 1px solid var(--line);
+}
+
+.health-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 11px;
+}
+
+.health-check {
+  font-weight: 600;
+}
+
+.health-check.ok {
+  color: #007a94;
+}
+
+.health-check.degraded {
+  color: #a15c00;
+}
+
+.health-check.failed {
+  color: #b42318;
+}
+
+.health-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.health-footer > span {
+  color: var(--muted);
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 10px;
 }
 
 .call,

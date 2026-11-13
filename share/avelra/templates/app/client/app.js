@@ -1,79 +1,80 @@
 const statusEl = document.getElementById("status");
-const resultEl = document.getElementById("result");
-const pingButton = document.getElementById("ping");
-const valueInput = document.getElementById("value");
-const codeValue = document.getElementById("code-value");
+const healthApp = document.getElementById("health-app");
+const healthMeta = document.getElementById("health-meta");
+const healthChecks = document.getElementById("health-checks");
+const healthUptime = document.getElementById("health-uptime");
+const healthRefresh = document.getElementById("health-refresh");
 const urlOpenError = document.getElementById("url-open-error");
 const urlOpenErrorUrl = document.getElementById("url-open-error-url");
 const urlOpenErrorClose = document.getElementById("url-open-error-close");
 
-function readValue() {
-  const value = Number(valueInput.value);
-  return Number.isFinite(value) ? value : 0;
+function formatUptime(ms) {
+  const totalSeconds = Math.max(0, Math.floor(Number(ms) / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 }
 
-function syncCode() {
-  codeValue.textContent = String(readValue());
+function healthStatusLabel(status) {
+  if (status === "ok") return "ok";
+  if (status === "degraded") return "degraded";
+  if (status === "failed") return "failed";
+  return "unknown";
 }
 
-async function ping() {
+function setHealthState(status) {
+  statusEl.textContent = healthStatusLabel(status);
+  statusEl.className = "state";
+  if (status === "ok") statusEl.classList.add("ok");
+  if (status === "degraded") statusEl.classList.add("degraded");
+  if (status === "failed") statusEl.classList.add("error");
+}
+
+function renderHealth(health) {
+  setHealthState(health.status);
+  healthApp.textContent = `${health.app.name} ${health.app.version}`;
+  healthMeta.textContent =
+    `Avelra ${health.runtime.version} · ${health.platform.os}/${health.platform.arch}`;
+  healthUptime.textContent = `uptime ${formatUptime(health.runtime.uptimeMs)}`;
+  healthChecks.textContent = "";
+  for (const check of health.checks) {
+    const row = document.createElement("div");
+    row.className = "health-row";
+    const id = document.createElement("span");
+    id.textContent = check.id;
+    const state = document.createElement("span");
+    state.className = `health-check ${check.status}`;
+    state.textContent = check.status;
+    row.append(id, state);
+    healthChecks.append(row);
+  }
+}
+
+async function checkHealth() {
   if (typeof window.nativeCall !== "function") {
     statusEl.textContent = "preview";
-    resultEl.textContent = "Open this app with `avelra run` to use the native bridge.";
-    pingButton.disabled = true;
+    healthApp.textContent = "Avelra preview";
+    healthMeta.textContent = "Open this app with `avelra run`.";
     return;
   }
 
-  const value = readValue();
-  statusEl.textContent = "calling…";
+  statusEl.textContent = "checking…";
   statusEl.className = "state";
-
+  healthRefresh.disabled = true;
   try {
-    const response = await window.nativeCall({
-      method: "app.ping",
-      data: { value }
-    });
-    statusEl.textContent = "ready";
-    statusEl.classList.add("ok");
-    renderResult(response);
+    const response = await window.nativeCall({ method: "app.healthCheck" });
+    if (!response || response.success !== true) {
+      throw new Error((response && response.error && response.error.message) ||
+        "health check failed");
+    }
+    renderHealth(response.returnValue);
   } catch (error) {
-    statusEl.textContent = "bridge error";
-    statusEl.classList.add("error");
-    resultEl.textContent = String(error);
+    setHealthState("failed");
+    healthApp.textContent = "Health check failed";
+    healthMeta.textContent = String(error);
+  } finally {
+    healthRefresh.disabled = false;
   }
-}
-
-function renderResult(response) {
-  const payload = response.returnValue || {};
-  const echo = payload.echo || {};
-  const rows = [
-    ["method", "app.ping"],
-    ["message", payload.message],
-    ["echo.value", echo.value],
-    ["runtime", payload.runtime]
-  ];
-
-  resultEl.textContent = "";
-  for (const [name, value] of rows) {
-    const row = document.createElement("div");
-    row.className = "row";
-    const key = document.createElement("span");
-    key.textContent = name;
-    const val = document.createElement("span");
-    val.textContent = String(value ?? "");
-    row.append(key, val);
-    resultEl.append(row);
-  }
-}
-
-function reportReady() {
-  if (typeof window.nativeCall !== "function") {
-    return;
-  }
-  // Wait for the first painted frame before dismissing the loading overlay.
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    window.nativeCall({ method: "app.ready" }).catch(() => {});
-  }));
 }
 
 async function openUrl(url) {
@@ -112,20 +113,22 @@ document.addEventListener("keydown", (event) => {
 for (const link of document.querySelectorAll("a[data-open-url]")) {
   link.addEventListener("click", async (event) => {
     event.preventDefault();
-    const url = link.href;
-    if (typeof window.nativeCall === "function") {
-      try {
-        await openUrl(url);
-      } catch (error) {
-        showUrlOpenError(url);
-      }
-    } else {
-      window.open(url, "_blank", "noopener");
+    try {
+      await openUrl(link.href);
+    } catch (error) {
+      showUrlOpenError(link.href);
     }
   });
 }
 
-valueInput.addEventListener("input", syncCode);
-pingButton.addEventListener("click", ping);
-syncCode();
-ping().finally(reportReady);
+function reportReady() {
+  if (typeof window.nativeCall !== "function") {
+    return;
+  }
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    window.nativeCall({ method: "app.ready" }).catch(() => {});
+  }));
+}
+
+healthRefresh.addEventListener("click", checkHealth);
+checkHealth().finally(reportReady);
