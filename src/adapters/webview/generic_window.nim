@@ -20,7 +20,8 @@ type
 proc createAppWindow*(title: string; width, height: int;
                       iconPath = ""): AppWindow =
   ## Creates the window and sets its initial title and geometry.
-  let webview = webviewCreate(0, nil)
+  const webviewDebug = when defined(avelraDebug): cint(1) else: cint(0)
+  let webview = webviewCreate(webviewDebug, nil)
   if webview == nil:
     raise newException(OSError, "failed to create the webview")
 

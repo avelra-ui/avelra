@@ -38,7 +38,13 @@ while IFS= read -r flag; do
 done < <(pkg-config --libs gtk+-3.0 webkit2gtk-4.1 | xargs -n1)
 
 # --path:src allows imports such as adapters/... and application/... from src.
-nim c -d:release --opt:size --mm:orc -d:strip --hints:off \
+NIM_FLAGS=()
+if [[ "${AVELRA_DEBUG:-0}" == "1" ]]; then
+  NIM_FLAGS+=(-d:avelraDebug)
+else
+  NIM_FLAGS+=(-d:release --opt:size -d:strip)
+fi
+nim c "${NIM_FLAGS[@]}" --mm:orc --hints:off \
   -d:avelraVersion="$VERSION" \
   --threads:on \
   --path:src \

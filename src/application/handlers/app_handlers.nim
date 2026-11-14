@@ -1,6 +1,6 @@
 ## Built-in `app.*` methods.
 
-import std/[json, os, times]
+import std/[json, times]
 
 import application/dispatcher
 import domain/native_call
@@ -20,14 +20,6 @@ proc handleReady(call: NativeCall; ctx: HandlerContext): NativeResult =
   ## UI lifecycle signal: the page has painted its first content.
   if ctx.loading.hide != nil:
     ctx.loading.hide()
-  # Test-only observation point. This is intentionally env-gated and is not
-  # part of the public native API.
-  let probe = getEnv("AVELRA_TEST_HEALTH_FILE")
-  if probe.len > 0 and ctx.health.snapshot != nil:
-    try:
-      writeFile(probe, $healthPayload(ctx.health.snapshot()))
-    except CatchableError:
-      discard
   result = ok()
 
 proc healthStatusName(status: HealthStatus): string =

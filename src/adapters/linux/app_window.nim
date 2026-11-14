@@ -44,7 +44,8 @@ proc createAppWindow*(title: string; width, height: int;
   if iconPath.len > 0 and fileExists(iconPath):
     discard gtkWindowSetDefaultIconFromFile(iconPath.cstring, nil)
 
-  let webview = webviewCreate(0, nil)
+  const webviewDebug = when defined(avelraDebug): cint(1) else: cint(0)
+  let webview = webviewCreate(webviewDebug, nil)
   if webview == nil:
     raise newException(OSError, "failed to create the webview")
 
