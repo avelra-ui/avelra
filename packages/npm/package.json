@@ -1,6 +1,6 @@
 {
   "name": "avelra",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Avelra UI — desktop apps with a tiny native runtime.",
   "license": "MIT",
   "private": false,

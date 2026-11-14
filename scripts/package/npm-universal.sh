@@ -23,6 +23,14 @@ done
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 cp -a "$PACKAGE/." "$STAGE/"
+python3 - "$STAGE/package.json" "$VERSION" <<'PY_VERSION'
+import json, sys
+from pathlib import Path
+p = Path(sys.argv[1])
+data = json.loads(p.read_text())
+data["version"] = sys.argv[2]
+p.write_text(json.dumps(data, indent=2) + "\n")
+PY_VERSION
 rm -rf "$STAGE/platform"
 mkdir -p "$STAGE/platform"/{linux-x64,win32-x64,darwin-arm64} "$OUT"
 
@@ -42,4 +50,8 @@ chmod +x "$STAGE/platform/linux-x64/bin/avelra" \
   "$STAGE/platform/darwin-arm64/libexec/avelra/avelra-pack"
 
 (cd "$STAGE" && npm pack --pack-destination "$OUT" >/dev/null)
+test -f "$OUT/avelra-$VERSION.tgz" || {
+  echo "npm pack produced wrong version in $OUT" >&2
+  exit 1
+}
 echo "$OUT/avelra-$VERSION.tgz"
