@@ -1,6 +1,6 @@
 ## Built-in `app.*` methods.
 
-import std/[json, times]
+import std/[json, os, times]
 
 import application/dispatcher
 import domain/native_call
@@ -14,10 +14,20 @@ proc handlePing(call: NativeCall; ctx: HandlerContext): NativeResult =
     "runtime": "nim"
   })
 
+proc healthPayload(snapshot: HealthSnapshot): JsonNode
+
 proc handleReady(call: NativeCall; ctx: HandlerContext): NativeResult =
   ## UI lifecycle signal: the page has painted its first content.
   if ctx.loading.hide != nil:
     ctx.loading.hide()
+  # Test-only observation point. This is intentionally env-gated and is not
+  # part of the public native API.
+  let probe = getEnv("AVELRA_TEST_HEALTH_FILE")
+  if probe.len > 0 and ctx.health.snapshot != nil:
+    try:
+      writeFile(probe, $healthPayload(ctx.health.snapshot()))
+    except CatchableError:
+      discard
   result = ok()
 
 proc healthStatusName(status: HealthStatus): string =
@@ -26,11 +36,8 @@ proc healthStatusName(status: HealthStatus): string =
   of hsDegraded: "degraded"
   of hsFailed: "failed"
 
-proc handleHealthCheck(call: NativeCall; ctx: HandlerContext): NativeResult =
-  ## Returns a read-only snapshot of runtime and application health.
-  if ctx.health.snapshot == nil:
-    return fail(ErrInvalidRequest, "health provider is unavailable")
-  let snapshot = ctx.health.snapshot()
+proc healthPayload(snapshot: HealthSnapshot): JsonNode =
+  ## Serializes the public health contract; reused by the test-only probe.
   var checks = newJArray()
   for check in snapshot.checks:
     checks.add(%*{
@@ -49,7 +56,7 @@ proc handleHealthCheck(call: NativeCall; ctx: HandlerContext): NativeResult =
       if extension.lastErrorCode.len > 0: %extension.lastErrorCode
       else: newJNull()
     extensions.add entry
-  result = ok(%*{
+  result = %*{
     "schema": 1,
     "status": healthStatusName(snapshot.status),
     "healthy": snapshot.status == hsOk,
@@ -72,7 +79,13 @@ proc handleHealthCheck(call: NativeCall; ctx: HandlerContext): NativeResult =
     },
     "checks": checks,
     "extensions": extensions
-  })
+  }
+
+proc handleHealthCheck(call: NativeCall; ctx: HandlerContext): NativeResult =
+  ## Returns a read-only snapshot of runtime and application health.
+  if ctx.health.snapshot == nil:
+    return fail(ErrInvalidRequest, "health provider is unavailable")
+  result = ok(healthPayload(ctx.health.snapshot()))
 
 proc handleExit(call: NativeCall; ctx: HandlerContext): NativeResult =
   ## Requests a clean window close; the platform run loop performs cleanup.
