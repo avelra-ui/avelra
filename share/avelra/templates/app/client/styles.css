@@ -196,6 +196,20 @@ code {
   color: var(--iris);
 }
 
+.links .link-disabled {
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 1px dashed #d7dbe7;
+  padding-bottom: 3px;
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+.links .link-disabled span {
+  color: var(--muted);
+}
+
 .bridge {
   align-self: start;
   padding: 16px;
