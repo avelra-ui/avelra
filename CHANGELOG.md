@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.3.0] - 2026-11-14 — private alpha candidate
+
+Private alpha candidate. Not a public release; Linux remains the verified
+platform.
+
+### Added
+
+- `app.healthCheck` native method with schema 1, status, checks, extensions,
+  uptime and platform/runtime metadata.
+- Health card in the starter application with `ok/degraded/failed` status,
+  check rows and an explicit `app.healthCheck` call example.
+- Debian 13 support in the Linux matrix alongside Debian 12.
+
+### Changed
+
+- Starter uses `app.healthCheck` instead of `app.ping`; `app.ping` remains in
+  the runtime for smoke tests.
+- Linux release artifacts are built on Ubuntu 22.04 with a GLIBC 2.35 baseline
+  check.
+- WebKit developer extras are available through an opt-in debug build;
+  production runtime keeps them disabled.
+
+### Known limitations
+
+- Private alpha: no public downloads.
+- Windows/macOS remain experimental and are not part of the public alpha.
+- Release gates for branch protection, pinned actions and public links are
+  still open.
+
 ## [0.2.0] - 2026-11-10
 
 Technical release with npm distribution.
@@ -40,3 +69,5 @@ production-stable release.
 - Linux is the verified platform.
 
 [0.1.0]: https://github.com/avelra-ui/avelra/releases/tag/v0.1.0
+
+[0.3.0]: https://github.com/avelra-ui/avelra/releases/tag/v0.3.0
