@@ -14,7 +14,8 @@ permissions:
 
 jobs:
   linux:
-    runs-on: ubuntu-24.04
+    # Release artifacts must be built on the oldest supported glibc baseline.
+    runs-on: ubuntu-22.04
     timeout-minutes: 60
     permissions:
       contents: read
@@ -54,6 +55,19 @@ jobs:
           ./scripts/checks/platforms.sh
           ./scripts/checks/docs.py
           ./scripts/release/build.sh
+
+      - name: Verify GLIBC baseline
+        run: |
+          version="$(cat VERSION)"
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          tar -xzf "build/releases/${version}/linux-x64/artifacts/avelra-sdk-${version}-linux-x64.tar.gz" -C "$tmp"
+          sdk="$tmp/avelra-sdk-${version}-linux-x64"
+          ./scripts/checks/glibc.py --max 2.35 \
+            "$sdk/bin/avelra" \
+            "$sdk/libexec/avelra/avelra-runtime" \
+            "$sdk/libexec/avelra/avelra-pack" \
+            "$sdk/libexec/avelra/avelra-installer"
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v7
