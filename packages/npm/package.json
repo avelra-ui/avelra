@@ -1,15 +1,19 @@
 {
   "name": "avelra",
   "version": "0.3.1",
-  "description": "Avelra UI — desktop apps with a tiny native runtime.",
+  "description": "Avelra — web UI, tiny native runtime. CLI and SDK for lightweight Linux desktop apps.",
   "license": "MIT",
   "private": false,
   "homepage": "https://avelra.dev",
   "keywords": [
     "desktop",
+    "desktop-apps",
     "webview",
+    "webkitgtk",
     "nim",
     "framework",
+    "sdk",
+    "cli",
     "web-ui"
   ],
   "engines": {
