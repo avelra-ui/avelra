@@ -3,8 +3,8 @@
 This guide takes you from a clean Linux system to a running Avelra application.
 It targets the **0.4.0 public preview**.
 
-You do not need Nim to build an Avelra application. The runtime and SDK are
-prebuilt; you only need the system WebView libraries.
+Avelra applications build with the prebuilt SDK. Nim is only needed when
+working on the runtime itself.
 
 ## Requirements
 
@@ -18,8 +18,8 @@ Verified distributions:
 - Ubuntu 22.04, 24.04, 26.04;
 - Debian 12, 13.
 
-Other glibc-based x64 distributions can use the portable tar artifact on a
-best-effort basis. They are not part of the verified matrix. Native RPM
+Other glibc-based x64 distributions can use the portable tar artifact; their
+compatibility validation continues alongside the verified targets. Native RPM
 packaging for Fedora/RHEL is planned.
 
 On Debian/Ubuntu, install the runtime libraries if they are missing:
@@ -69,7 +69,8 @@ You run `avelra`; the `libexec` tools are internal.
 
 ### npm tarball
 
-The npm package is a release asset, not a registry publication yet.
+The npm package is published with the 0.4.0 release. Install it from the release
+tarball until the registry package is available, then use the registry package.
 
 Requirements: **Node.js 22 or newer**.
 
@@ -132,9 +133,8 @@ Build a single executable:
 avelra build
 ```
 
-The output is written under `dist/<app>/`. The executable contains the client
-assets, configuration and icon; it does not need the `client/` directory at
-runtime.
+The output is written under `dist/<app>/`. The executable embeds the client
+assets, configuration and icon, so the built app runs from one file.
 
 Build an application installer:
 
@@ -189,4 +189,4 @@ The listener disappears when the window closes.
 
 - [Using Avelra](usage.md) — project configuration, CLI, native API and
   packaging.
-- [Troubleshooting](troubleshooting.md) — dependency, display and port errors.
+- [Troubleshooting](troubleshooting.md) — dependency, display and port issues.

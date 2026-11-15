@@ -1,80 +1,87 @@
-# Avelra user documentation
+# Avelra
 
-This documentation describes the **0.4.0 Linux x64 public preview**.
+Avelra turns a web UI into a native desktop app.
 
-Avelra is a desktop application framework for web developers. Use the frontend
-stack you already know — React, Vue, Svelte or vanilla. Avelra runs the built
-static output in the operating system's WebView; a small native runtime provides
-the window, native calls and packaging without bundling a browser engine into
-every app. Your frontend toolchain stays yours; Avelra does
-not bundle or manage it.
+Bring the frontend you already have — React, Vue, Svelte or vanilla — and
+Avelra gives it a native window, a small local API and a single-file
+distribution path. The app runs in the system WebView; Avelra does not bundle a
+second browser engine.
+
+The **0.4.0 Linux x64 public preview** is the current focus.
+
+## What Avelra gives you
+
+- **Your existing web UI, as a desktop app.** Build the frontend with the tools
+  you already use; Avelra runs the built static output.
+- **A small native shell.** The runtime owns the window, lifecycle and local
+  native calls, so the app stays small.
+- **One executable.** `avelra build` embeds the client assets and produces a
+  single file that runs without a separate client directory.
+- **Linux distribution formats.** Ship tar, deb or AppImage installers.
+- **Direct native access.** Call window, OS and app capabilities from the page
+  through a small JavaScript API, without a separate service to run.
+
+## How it fits together
+
+```text
+your web UI (client/)
+        +
+avelra.config.json
+        │
+        ▼
+avelra build
+        │
+        ▼
+single executable
+        │
+        ▼
+the system WebView + the Avelra native shell
+```
+
+Avelra applications use HTML, CSS and JavaScript at runtime. The frontend
+toolchain stays yours.
 
 ## Start here
 
-1. [Getting started](getting-started.md) — requirements, installation, first
-   project, run and build.
-2. [Using Avelra](usage.md) — project structure, CLI, native API, health checks
-   and packaging.
-3. [Troubleshooting](troubleshooting.md) — common dependency, display, port and
-   packaging errors.
+1. [Getting started](getting-started.md) — install the SDK, create an app and
+   run it.
+2. [Using Avelra](usage.md) — project structure, CLI, core API and packaging.
+3. [Troubleshooting](troubleshooting.md) — dependency, display, port and
+   packaging issues.
 
-## Platform support
+## Platform status
 
-| Platform | Status | Install |
+| Platform | What exists today | Next gate |
 |---|---|---|
-| Ubuntu 22.04 / 24.04 / 26.04 x64 | verified | deb, tar |
-| Debian 12 / 13 x64 | verified | deb, tar |
-| Other glibc-based x64 | best-effort; not in verified matrix | tar |
-| Windows x64 | private/experimental | not public |
-| macOS arm64 | private/experimental | not public |
+| Ubuntu 22.04 / 24.04 / 26.04 x64 | Verified SDK, runtime, loading overlay, deb and tar | 0.4 public preview |
+| Debian 12 / 13 x64 | Verified SDK, runtime, loading overlay, deb and tar | 0.4 public preview |
+| Windows x64 | SDK, runtime, NSIS installer and doctor checks build in CI | UI/runtime smoke, signing and public rollout |
+| macOS arm64 | SDK, runtime, DMG and doctor checks build in CI | Runtime smoke, app bundle, signing/notarization |
+| Fedora/RHEL-compatible x64 | Portable tar support | Native RPM packaging |
+| Other glibc-based x64 | Portable tar support | Compatibility validation continues |
 
-The Linux runtime requires:
+Windows and macOS already have code paths, CI builds, installers and dependency
+checks. Their remaining gates are runtime/UI validation and signing.
+
+The Linux runtime uses:
 
 - x86_64 Linux;
 - GTK 3.24 or newer;
 - WebKitGTK 4.1;
 - glibc 2.35 or newer for the release binaries.
 
-The npm launcher requires Node.js 22 or newer.
+The npm launcher uses Node.js 22 or newer.
 
-## What this preview includes
+## Status and next
 
-- `avelra init`, `run`, `build`, `installer` and `doctor`;
-- a single executable for each application;
-- app installers for tar, deb and AppImage;
-- the `window.avelra` core namespace;
-- `window.avelra.app.healthCheck()` with runtime and platform status;
-- a starter application with a working health card.
+The 0.4.0 preview focuses on the Linux x64 core and the `window.avelra` API.
 
-## Design choices
-
-- **Local-first by construction.** Native calls use the WebView bridge, not an
-  HTTP or WebSocket control API, so the app does not expose its privileged API
-  on the network.
-- **One window per process.** The runtime stays small and the life cycle stays
-  predictable.
-- **Fixed core native methods.** Core APIs are small and explicit; the public
-  preview does not expose application-defined native methods.
-- **System WebView.** The app does not bundle a second browser engine.
-- **JSON at the bridge boundary.** Calls and results have one explicit,
-  debuggable contract.
-
-Browser/cloud mode is not a goal for this runtime: Avelra is a local desktop
-runtime, not a remote application host.
-
-## Current limitations
-
-- Core calls carry JSON, not binary or streaming data. Large blobs must be
-  encoded (for example as base64), which adds memory copies and can block the UI
-  thread.
-
-## Not included in 0.4
-
-The extension API is not part of the 0.4 public preview:
-
-- `window.avelra.callExt` is absent;
-- sidecar extensions are not documented or supported publicly;
-- extensions are planned for 0.5.
+- **Available now:** SDK installation, `init`/`run`/`build`, core native calls,
+  single executable and app installers on the verified Linux targets.
+- **Shipping with 0.4.0:** npm registry publishing alongside the release
+  artifacts.
+- **In development:** extension API for 0.5, Windows and macOS public rollout,
+  native RPM packaging.
 
 ## Verify your installation
 
@@ -83,8 +90,8 @@ avelra --version
 avelra doctor
 ```
 
-`doctor` reports GTK, WebKitGTK and platform readiness. A failed check includes
-an actionable hint.
+`doctor` reports GTK, WebKitGTK and platform readiness, with an actionable hint
+when a dependency needs attention.
 
 For the release verification matrix, see
 [avelra.dev/quality](https://avelra.dev/quality/).

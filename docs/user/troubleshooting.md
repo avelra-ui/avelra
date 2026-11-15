@@ -50,8 +50,8 @@ WebKitGTK is not installed:
 sudo apt install libwebkit2gtk-4.1-0
 ```
 
-An application binary fails before its window appears; this is a loader error,
-not an Avelra crash. Run `avelra doctor` after installing the library.
+The loader reports the missing library before the app starts. Install it, then
+run `avelra doctor` again.
 
 ### Node version is too old
 

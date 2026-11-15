@@ -1,7 +1,7 @@
 # Using Avelra
 
-This page covers the application project, CLI, core native API, health checks
-and packaging for the **0.4.0 Linux x64 public preview**.
+This page covers the application project, CLI, core API, health checks and
+packaging for the **0.4.0 Linux x64 public preview**.
 
 ## Project layout
 
@@ -20,8 +20,8 @@ my-app/
 After `avelra build` or `avelra installer`, output is written under
 `dist/<app>/`.
 
-The `client/` directory is served by a local HTTP server. It is not compiled
-into the runtime, so HTML/CSS/JS changes do not require rebuilding Avelra.
+The client is served by a local HTTP server during `avelra run`. `avelra build`
+embeds the client assets in the executable, so the built app runs from one file.
 
 ## Configuration
 
@@ -53,10 +53,6 @@ into the runtime, so HTML/CSS/JS changes do not require rebuilding Avelra.
 | `window.width` / `height` | no | Initial window size; defaults to 600×400 |
 | `linuxDebDepends` | no | Extra Debian dependencies |
 
-The `client/` directory must exist when the app is run. The executable built by
-`avelra build` embeds the client assets and does not need the directory at
-runtime.
-
 Use relative URLs for CSS, JS and other assets:
 
 ```html
@@ -64,8 +60,8 @@ Use relative URLs for CSS, JS and other assets:
 <script src="app.js"></script>
 ```
 
-The application URL contains a random path token; absolute paths such as
-`/app.js` bypass it and return 404.
+The application URL contains a random path token, so relative assets resolve
+correctly inside the app.
 
 ## CLI
 
@@ -118,10 +114,11 @@ await window.avelra.os.openUrl("https://avelra.dev/");
 | `os.openUrl(url)` | resolves after the browser handler completes |
 
 All methods return a Promise. `ready` and `exit` are commands; callers may
-ignore the Promise. A resolved Promise does not mean the page has repainted.
+ignore the Promise. The Promise confirms completion of the operation, so UI
+updates should be driven by the page's own rendering flow.
 
-`os.openUrl` accepts only `http` and `https`. The browser process runs outside
-the GUI thread; the Promise resolves when its exit status is known.
+`os.openUrl` supports `http` and `https`. The browser process runs outside the
+GUI thread; the Promise resolves when its exit status is known.
 
 ## Health check
 
@@ -163,13 +160,13 @@ application state:
 Status values:
 
 - `ok` — all critical checks are healthy;
-- `degraded` — the app works, but a component is still starting;
-- `failed` — a critical check failed: config, client assets or static server.
+- `degraded` — the app works while a component finishes starting;
+- `failed` — a critical check needs attention: config, client assets or static
+  server.
 
-`healthy` is `true` only when `status` is `ok`.
+`healthy` is `true` when `status` is `ok`.
 
-The `extensions` check is present in the runtime snapshot but extension support
-is not part of the 0.4 public API.
+The `extensions` check is ready for the extension API planned for 0.5.
 
 ## Packaging
 
@@ -186,37 +183,34 @@ avelra installer --target deb
 ```
 
 The `deb` includes the executable, desktop entry, icon and configured
-dependencies. It installs the application into the system menu.
+dependencies, and adds the application to the system menu.
 
-The `tar` target is useful for distributions without a native package format;
-Fedora/RHEL-compatible systems can use it. Native RPM packaging is planned.
+The `tar` target supports distributions without a native package format,
+including Fedora/RHEL-compatible systems. Native RPM packaging is planned.
 
-## Design choices
+## How Avelra is designed
 
 Avelra is a local desktop runtime:
 
-- native calls use the WebView bridge, not HTTP or WebSocket;
+- native calls use the WebView bridge;
 - one window per process;
-- core native methods are fixed;
-- the app uses the system WebView rather than a bundled browser;
+- core native methods are fixed and focused;
+- the app uses the system WebView;
 - JSON is the bridge contract.
 
-Browser/cloud mode is intentionally out of scope. The app does not expose a
-network control API for its native methods.
+Browser and cloud hosting are future product directions; the current runtime is
+optimized for local desktop apps.
 
-## Limitations
+## Status and next
 
-- Core calls carry JSON. Binary data must be encoded (for example as base64),
-  which adds copies and can block the UI thread.
-- Linux x64 is the only public platform.
-- Windows and macOS builds remain private until their runtime and signing gates
-  pass.
-- Extensions and `window.avelra.callExt` are not part of 0.4.
+Linux x64 is the verified platform for the 0.4.0 preview. Windows and macOS
+already build SDKs, runtime binaries and installers in CI; runtime/UI smoke and
+signing are the remaining gates before public rollout. Fedora/RHEL native RPM
+packaging and the extension API are in development. npm registry publishing
+ships with the 0.4.0 release.
 
-## Not in 0.4
+## Extensions
 
-The extension API is planned for 0.5:
-
-- no `window.avelra.callExt`;
-- no public sidecar extension support;
-- no application-defined native methods.
+Extension support is in development for 0.5. The 0.4 public API focuses on the
+core methods above; extension calls will use a dedicated `callExt` API in the
+next milestone.
