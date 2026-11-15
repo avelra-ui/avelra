@@ -13,7 +13,7 @@
     "web-ui"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "bin": {
     "avelra": "bin/avelra.js"
