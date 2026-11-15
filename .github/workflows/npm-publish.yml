@@ -66,5 +66,38 @@ jobs:
           INPUTS_TAG: ${{ inputs.tag }}
         run: |
           version="${INPUTS_TAG#v}"
-          npm view "avelra@${version}" version dist.tarball
+          for attempt in $(seq 1 30); do
+            if npm view "avelra@${version}" version dist.tarball >/tmp/npm-view.txt 2>&1; then
+              cat /tmp/npm-view.txt
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              cat /tmp/npm-view.txt
+              exit 1
+            fi
+            sleep 10
+          done
+          npm view avelra dist-tags
+
+      - name: Smoke registry install
+        env:
+          INPUTS_TAG: ${{ inputs.tag }}
+        run: |
+          version="${INPUTS_TAG#v}"
+          mkdir -p "$RUNNER_TEMP/npm-smoke"
+          cd "$RUNNER_TEMP/npm-smoke"
+          npm init -y >/dev/null
+          npm install "avelra@${version}"
+          ./node_modules/.bin/avelra --version
+          ./node_modules/.bin/avelra init smoke
+          cd smoke
+          ../node_modules/.bin/avelra build
+          test -x dist/smoke/smoke
+
+      - name: Promote latest
+        env:
+          INPUTS_TAG: ${{ inputs.tag }}
+        run: |
+          version="${INPUTS_TAG#v}"
+          npm dist-tag add "avelra@${version}" latest
           npm view avelra dist-tags
