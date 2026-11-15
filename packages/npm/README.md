@@ -1,16 +1,15 @@
 # Avelra
 
-Avelra turns web UI into a small native desktop app: your HTML, CSS and
-JavaScript run in the system WebView, while a tiny native runtime handles the
-window, native calls and packaging.
+Avelra is a desktop app framework for web developers. Use the frontend stack
+you already use — React, Vue, Svelte or vanilla — and run the built static
+output in the system WebView. A small native runtime provides the window, native
+calls and packaging.
 
 ## Status
 
-**0.3.1 private alpha — Linux x64.**
+**0.4.0 public preview — Linux x64.**
 
-There are no public downloads and the package is not yet published to the npm
-registry. The tarball is distributed as a GitHub Release asset while the public
-preview is being prepared.
+This is the first public preview of the Avelra core.
 
 ## What this package contains
 
@@ -20,20 +19,33 @@ preview is being prepared.
 
 Node.js **22 or newer** is required by the launcher.
 
-## Install from the release tarball
+## Install
 
-Download `avelra-0.3.1.tgz` from the release page, then install it locally:
+From npm:
 
 ```bash
-npm install ./avelra-0.3.1.tgz
-npx avelra --version
-npx avelra init my-app
+npm install -g avelra@0.4.0
+avelra init my-app
 cd my-app
-npx avelra run
+avelra run
 ```
 
-Do not expect `npm install avelra` from the registry until the public preview
-opens. Registry publishing needs the public repository and trusted publishing.
+Or from the release tarball:
+
+```bash
+npm install ./avelra-0.4.0.tgz
+npx avelra --version
+```
+
+## Core API
+
+```js
+await window.avelra.app.healthCheck();
+await window.avelra.os.openUrl("https://avelra.dev/docs/");
+```
+
+The 0.4 public API focuses on core lifecycle, health and OS helpers.
+Extensions and `callExt` are planned for 0.5.
 
 ## Requirements
 
@@ -47,7 +59,8 @@ planned.
 
 ## Verification
 
-The install, CLI, sample-app and UI checks are published on the quality page:
+The install, CLI, sample-app, UI and npm checks are published on the quality
+page:
 
 https://avelra.dev/quality/
 
