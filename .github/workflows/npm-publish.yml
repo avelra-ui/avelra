@@ -52,7 +52,7 @@ jobs:
           (cd npm && sha256sum -c SHA256SUMS-npm)
 
       - name: Install current npm for trusted publishing
-        run: npm install -g npm@11.6.0
+        run: sudo npm install -g npm@11.6.0
 
       - name: Publish to npm with provenance
         env:
