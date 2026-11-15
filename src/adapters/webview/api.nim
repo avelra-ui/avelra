@@ -38,6 +38,10 @@ proc webviewSetSize*(w: Webview; width, height: cint; hints: cint): cint
 proc webviewNavigate*(w: Webview; url: cstring): cint
   {.cdecl, importc: "webview_navigate".}
 
+## Installs a JavaScript snippet as a user script for every page load.
+proc webviewInit*(w: Webview; js: cstring): cint
+  {.cdecl, importc: "webview_init".}
+
 ## Registers `name` on `window` and routes calls to `fn`.
 ## `arg` is passed back unchanged; it must outlive the webview.
 proc webviewBind*(w: Webview; name: cstring; fn: WebviewBindFn; arg: pointer): cint

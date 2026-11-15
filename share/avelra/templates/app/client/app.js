@@ -51,7 +51,7 @@ function renderHealth(health) {
 }
 
 async function checkHealth() {
-  if (typeof window.nativeCall !== "function") {
+  if (!window.avelra || !window.avelra.app) {
     statusEl.textContent = "preview";
     healthApp.textContent = "Avelra preview";
     healthMeta.textContent = "Open this app with `avelra run`.";
@@ -62,7 +62,7 @@ async function checkHealth() {
   statusEl.className = "state";
   healthRefresh.disabled = true;
   try {
-    const response = await window.nativeCall({ method: "app.healthCheck" });
+    const response = await window.avelra.app.healthCheck();
     if (!response || response.success !== true) {
       throw new Error((response && response.error && response.error.message) ||
         "health check failed");
@@ -78,10 +78,7 @@ async function checkHealth() {
 }
 
 async function openUrl(url) {
-  const response = await window.nativeCall({
-    method: "os.openUrl",
-    data: { url }
-  });
+  const response = await window.avelra.os.openUrl(url);
   if (!response || response.success !== true) {
     throw new Error((response && response.error && response.error.message) ||
       "could not open URL");
@@ -122,11 +119,11 @@ for (const link of document.querySelectorAll("a[data-open-url]")) {
 }
 
 function reportReady() {
-  if (typeof window.nativeCall !== "function") {
+  if (!window.avelra || !window.avelra.app) {
     return;
   }
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    window.nativeCall({ method: "app.ready" }).catch(() => {});
+    window.avelra.app.ready().catch(() => {});
   }));
 }
 

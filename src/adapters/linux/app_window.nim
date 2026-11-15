@@ -90,8 +90,8 @@ proc installLoading*(window: AppWindow): LoadingPort =
   result = window.loading.toLoadingPort()
 
 proc bindNativeCall*(window: AppWindow; dispatcher: Dispatcher) =
-  ## Registers `window.nativeCall` and stores the bridge in the window so the
-  ## callback cannot outlive its owner.
+  ## Registers the internal native-call transport and stores the bridge in the
+  ## window so the callback cannot outlive its owner.
   # The bridge owns the dispatcher reference for the lifetime of the window.
   window.bridge = installBridge(window.webview, dispatcher)
 
@@ -109,6 +109,10 @@ proc startEventPump*(window: AppWindow; pump: proc() {.closure.}) =
   window.eventPump = pump
   if window.gtkWindow != nil:
     discard gTimeoutAdd(50, eventPumpCallback, cast[pointer](window))
+
+proc pumpAsync*(window: AppWindow) =
+  if window.bridge != nil:
+    window.bridge.pumpAsync()
 
 proc emitEvent*(window: AppWindow; eventName: string; data: JsonNode) =
   if window.bridge != nil:

@@ -50,11 +50,9 @@
           <span class="state" id="status">checking…</span>
         </div>
 
-        <p class="hint">Runtime and app checks from <code>app.healthCheck</code>.</p>
+        <p class="hint">Runtime and app checks from <code>window.avelra.app.healthCheck()</code>.</p>
 
-        <pre class="call">await window.nativeCall({
-  method: "app.healthCheck"
-})</pre>
+        <pre class="call">await window.avelra.app.healthCheck()</pre>
 
         <div class="health-headline">
           <strong id="health-app">—</strong>

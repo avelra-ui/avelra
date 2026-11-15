@@ -36,12 +36,17 @@ proc installLoading*(window: AppWindow): LoadingPort =
   LoadingPort(hide: proc() = discard)
 
 proc bindNativeCall*(window: AppWindow; dispatcher: Dispatcher) =
-  ## Registers `window.nativeCall` and keeps the bridge alive with the window.
+  ## Registers the internal native-call transport and keeps the bridge alive.
   window.bridge = installBridge(window.webview, dispatcher)
 
 proc startEventPump*(window: AppWindow; pump: proc() {.closure.}) =
   ## No cross-platform timer yet; extension events are delivered during calls.
   discard
+
+proc pumpAsync*(window: AppWindow) =
+  ## Experimental platforms use the bridge completion path without a timer.
+  if window.bridge != nil:
+    window.bridge.pumpAsync()
 
 proc emitEvent*(window: AppWindow; eventName: string; data: JsonNode) =
   if window.bridge != nil:

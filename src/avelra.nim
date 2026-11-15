@@ -271,7 +271,10 @@ when isMainModule:
       if manager != nil:
         manager.setEventSink(proc(eventName: string; data: JsonNode) =
           window.emitEvent(eventName, data))
-        window.startEventPump(proc() = manager.pumpEvents())
+      window.startEventPump(proc() =
+        window.pumpAsync()
+        if manager != nil:
+          manager.pumpEvents())
       window.navigate(server.url)
 
       # Blocks until the user closes the window; the window owns the bridge.
