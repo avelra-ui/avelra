@@ -28,5 +28,14 @@
     "platform",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/avelra-ui/avelra.git",
+    "directory": "packages/npm"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

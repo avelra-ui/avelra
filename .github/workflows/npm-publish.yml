@@ -1,0 +1,70 @@
+name: npm-publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag, for example v0.4.0
+        required: true
+
+concurrency:
+  group: npm-publish-${{ inputs.tag }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: npm-release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Validate tag
+        env:
+          INPUTS_TAG: ${{ inputs.tag }}
+        run: |
+          test "${INPUTS_TAG#v}" = "$(cat VERSION)"
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor HEAD origin/main
+
+      - name: Download release npm tarball
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUTS_TAG: ${{ inputs.tag }}
+        run: |
+          mkdir -p npm
+          gh release download "${INPUTS_TAG}" \
+            --pattern 'avelra-*.tgz' \
+            --pattern 'SHA256SUMS-npm' \
+            --dir npm
+          test -f "npm/avelra-${INPUTS_TAG#v}.tgz"
+          test -f npm/SHA256SUMS-npm
+          (cd npm && sha256sum -c SHA256SUMS-npm)
+
+      - name: Install current npm for trusted publishing
+        run: npm install -g npm@11.6.0
+
+      - name: Publish to npm with provenance
+        env:
+          INPUTS_TAG: ${{ inputs.tag }}
+        run: |
+          npm publish "./npm/avelra-${INPUTS_TAG#v}.tgz" \
+            --provenance --access public --tag next
+
+      - name: Verify registry
+        env:
+          INPUTS_TAG: ${{ inputs.tag }}
+        run: |
+          version="${INPUTS_TAG#v}"
+          npm view "avelra@${version}" version dist.tarball
+          npm view avelra dist-tags
