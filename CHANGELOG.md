@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.4.0] - 2026-11-15
+
+First public preview of the Avelra core on Linux x64.
+
+### Added
+
+- Public `window.avelra` namespace with `app.ping`, `app.ready`,
+  `app.healthCheck`, `app.exit`, `os.getEnv` and `os.openUrl`.
+- npm package publishing alongside the release artifacts.
+- Canonical user documentation in `docs/user/`.
+- Non-blocking `os.openUrl` path outside the GUI thread.
+
+### Changed
+
+- `window.nativeCall` is no longer part of the public API. The internal
+  transport remains for the future `callExt` implementation.
+- Starter app and examples use `window.avelra`.
+- Linux x64 is the public preview target; Windows and macOS SDKs/installers
+  continue building in CI for validation.
+
+### Scope
+
+- Extensions and `window.avelra.callExt` are planned for 0.5.
+- Windows and macOS public rollout follows their runtime and signing gates.
+
 ## [0.3.1] - 2026-11-14
 
 ### Fixed
