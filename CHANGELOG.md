@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1] - 2026-11-16
+
+### Fixed
+
+- Starter Examples link now points to the public examples directory instead of
+  being disabled.
+
 ## [0.4.0] - 2026-11-15
 
 First public preview of the Avelra core on Linux x64.
@@ -107,3 +114,5 @@ production-stable release.
 [0.3.1]: https://github.com/avelra-ui/avelra/releases/tag/v0.3.1
 
 [0.4.0]: https://github.com/avelra-ui/avelra/releases/tag/v0.4.0
+
+[0.4.1]: https://github.com/avelra-ui/avelra/releases/tag/v0.4.1

@@ -7,7 +7,7 @@ calls and packaging.
 
 ## Status
 
-**0.4.0 public preview — Linux x64.**
+**0.4.1 public preview — Linux x64.**
 
 This is the first public preview of the Avelra core.
 
@@ -24,7 +24,7 @@ Node.js **22 or newer** is required by the launcher.
 From npm:
 
 ```bash
-npm install -g avelra@0.4.0
+npm install -g avelra@0.4.1
 avelra init my-app
 cd my-app
 avelra run
@@ -33,7 +33,7 @@ avelra run
 Or from the release tarball:
 
 ```bash
-npm install ./avelra-0.4.0.tgz
+npm install ./avelra-0.4.1.tgz
 npx avelra --version
 ```
 
