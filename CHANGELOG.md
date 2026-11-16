@@ -105,3 +105,5 @@ production-stable release.
 [0.3.0]: https://github.com/avelra-ui/avelra/releases/tag/v0.3.0
 
 [0.3.1]: https://github.com/avelra-ui/avelra/releases/tag/v0.3.1
+
+[0.4.0]: https://github.com/avelra-ui/avelra/releases/tag/v0.4.0
