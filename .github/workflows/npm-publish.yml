@@ -6,11 +6,6 @@ on:
       tag:
         description: Existing release tag, for example v0.4.1
         required: true
-      promote_only:
-        description: Skip publish and only promote an already published version
-        required: false
-        type: boolean
-        default: false
 
 concurrency:
   group: npm-publish-${{ inputs.tag }}
@@ -60,7 +55,6 @@ jobs:
         run: sudo npm install -g npm@11.6.0
 
       - name: Publish to npm with provenance
-        if: ${{ !inputs.promote_only }}
         env:
           INPUTS_TAG: ${{ inputs.tag }}
         run: |
@@ -99,11 +93,3 @@ jobs:
           cd smoke
           ../node_modules/.bin/avelra build
           test -x dist/smoke/smoke
-
-      - name: Promote latest
-        env:
-          INPUTS_TAG: ${{ inputs.tag }}
-        run: |
-          version="${INPUTS_TAG#v}"
-          npm dist-tag add "avelra@${version}" latest
-          npm view avelra dist-tags
