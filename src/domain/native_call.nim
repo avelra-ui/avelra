@@ -10,6 +10,8 @@ const
   ErrMethodNotFound* = "NE_RT_NATNOTSUP"
   ## The request is malformed or a handler raised a CatchableError.
   ErrInvalidRequest* = "NE_RT_NATRTER"
+  ## A valid operation could not be completed by the platform handler.
+  ErrOperationFailed* = "NE_RT_OPFAILED"
   ## No extension/command is available for the current platform.
   ErrExtensionUnavailable* = "NE_RT_EXTUNAVAILABLE"
   ## Extension failed to start, crashed, timed out, or returned an error.

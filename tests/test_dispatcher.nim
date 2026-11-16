@@ -103,7 +103,7 @@ suite "dispatcher":
     )
 
     check not response.success
-    check response.error.code == ErrInvalidRequest
+    check response.error.code == ErrOperationFailed
     check state.openedUrl == "https://avelra.dev/docs/"
 
   test "os.openUrl rejects non-http schemes":

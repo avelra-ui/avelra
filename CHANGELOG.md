@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Security
+
+- `os.openUrl` no longer uses `cmd /c start` on Windows; it uses
+  `ShellExecuteW` and rejects command-shell metacharacter injection.
+- URL policy accepts `http`, `https` and `mailto`; unsupported schemes and
+  control characters are rejected.
+- Handler launch failures use `NE_RT_OPFAILED` instead of reporting an invalid
+  request.
+
 ## [0.4.2] - 2026-11-16
 
 ### Fixed

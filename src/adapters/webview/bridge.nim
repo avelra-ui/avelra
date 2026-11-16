@@ -1,12 +1,12 @@
 ## Webview bridge adapter: translates `webview_bind` calls into NativeCall,
 ## invokes the application dispatcher, and returns a JSON envelope.
 
-import std/[json, osproc, strutils]
+import std/[json, osproc]
 
 import adapters/system/url_open
 import adapters/webview/api
 import application/dispatcher
-import domain/native_call
+import domain/[native_call, url_policy]
 
 type
   UrlOpenPending = object
@@ -31,7 +31,7 @@ proc completeUrlOpen(bridge: WebviewBridge; id: string; code: int) =
   ## Resolves one background URL request on the UI thread.
   let response =
     if code == 0: ok()
-    else: fail(ErrInvalidRequest, "could not open URL")
+    else: fail(ErrOperationFailed, "could not open URL")
   let payload = $toJson(response)
   discard webviewReturn(bridge.webview, id.cstring, 0, payload.cstring)
 
@@ -71,21 +71,25 @@ proc handleNativeCall(id: cstring; req: cstring; arg: pointer) {.cdecl.} =
 
   if call.nativeMethod == "os.openUrl":
     let url = call.data.field("url").getStr("")
-    if not (url.startsWith("https://") or url.startsWith("http://")):
+    if not isAllowedUrl(url):
       let payload = $toJson(fail(ErrInvalidRequest,
-        "url must start with http:// or https://"))
+        "url must use http, https or mailto"))
       discard webviewReturn(bridge.webview, id, 0, payload.cstring)
       return
     try:
-      let process = startUrlOpen(url)
-      if process == nil:
-        let payload = $toJson(fail(ErrInvalidRequest, "could not open URL"))
+      let launch = startUrlOpen(url)
+      if not launch.launched:
+        let payload = $toJson(fail(ErrOperationFailed, "could not open URL"))
         discard webviewReturn(bridge.webview, id, 0, payload.cstring)
         return
-      bridge.urlPending.add(UrlOpenPending(id: $id, process: process))
+      if launch.process == nil:
+        let payload = $toJson(ok())
+        discard webviewReturn(bridge.webview, id, 0, payload.cstring)
+        return
+      bridge.urlPending.add(UrlOpenPending(id: $id, process: launch.process))
       return
     except OSError:
-      let payload = $toJson(fail(ErrInvalidRequest, "could not open URL"))
+      let payload = $toJson(fail(ErrOperationFailed, "could not open URL"))
       discard webviewReturn(bridge.webview, id, 0, payload.cstring)
       return
 

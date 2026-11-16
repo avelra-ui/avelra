@@ -53,6 +53,7 @@ compile_test extension_echo tests/fixtures/extension_echo.nim
 
 run_test test_native_call
 run_test test_dispatcher
+run_test test_url_policy
 run_test test_static_paths
 run_test test_resource_store
 run_test test_zip
