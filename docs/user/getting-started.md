@@ -1,7 +1,7 @@
 # Getting started
 
 This guide takes you from a clean Linux system to a running Avelra application.
-It targets the **0.4.0 public preview**.
+It targets the **0.4.1 public preview**.
 
 Avelra applications build with the prebuilt SDK. Nim is only needed when
 working on the runtime itself.
@@ -34,13 +34,13 @@ Older Debian/Ubuntu releases may use the package name `libgtk-3-0` instead of
 
 ## Install the SDK
 
-Choose one of the release artifacts. All examples use version `0.4.0`; replace
+Choose one of the release artifacts. All examples use version `0.4.1`; replace
 it with the version you downloaded.
 
 ### deb
 
 ```bash
-sudo apt install ./avelra_0.4.0_amd64.deb
+sudo apt install ./avelra_0.4.1_amd64.deb
 avelra --version
 ```
 
@@ -49,15 +49,15 @@ avelra --version
 ### Portable tar
 
 ```bash
-tar -xzf avelra-sdk-0.4.0-linux-x64.tar.gz
-export PATH="$PWD/avelra-sdk-0.4.0-linux-x64/bin:$PATH"
+tar -xzf avelra-sdk-0.4.1-linux-x64.tar.gz
+export PATH="$PWD/avelra-sdk-0.4.1-linux-x64/bin:$PATH"
 avelra --version
 ```
 
 The tar layout is:
 
 ```text
-avelra-sdk-0.4.0-linux-x64/
+avelra-sdk-0.4.1-linux-x64/
   bin/avelra
   libexec/avelra/avelra-runtime
   libexec/avelra/avelra-pack
@@ -69,13 +69,13 @@ You run `avelra`; the `libexec` tools are internal.
 
 ### npm tarball
 
-The npm package is published with the 0.4.0 release. Install it from the release
+The npm package is published with the 0.4.1 release. Install it from the release
 tarball until the registry package is available, then use the registry package.
 
 Requirements: **Node.js 22 or newer**.
 
 ```bash
-npm install ./avelra-0.4.0.tgz
+npm install ./avelra-0.4.1.tgz
 npx avelra --version
 ```
 

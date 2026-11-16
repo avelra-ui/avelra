@@ -7,7 +7,7 @@ Avelra gives it a native window, a small local API and a single-file
 distribution path. The app runs in the system WebView; Avelra does not bundle a
 second browser engine.
 
-The **0.4.0 Linux x64 public preview** is the current focus.
+The **0.4.1 Linux x64 public preview** is the current focus.
 
 ## What Avelra gives you
 
@@ -74,11 +74,11 @@ The npm launcher uses Node.js 22 or newer.
 
 ## Status and next
 
-The 0.4.0 preview focuses on the Linux x64 core and the `window.avelra` API.
+The 0.4.1 preview focuses on the Linux x64 core and the `window.avelra` API.
 
 - **Available now:** SDK installation, `init`/`run`/`build`, core native calls,
   single executable and app installers on the verified Linux targets.
-- **Shipping with 0.4.0:** npm registry publishing alongside the release
+- **Shipping with 0.4.1:** npm registry publishing alongside the release
   artifacts.
 - **In development:** extension API for 0.5, Windows and macOS public rollout,
   native RPM packaging.

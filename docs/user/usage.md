@@ -1,7 +1,7 @@
 # Using Avelra
 
 This page covers the application project, CLI, core API, health checks and
-packaging for the **0.4.0 Linux x64 public preview**.
+packaging for the **0.4.1 Linux x64 public preview**.
 
 ## Project layout
 
@@ -137,7 +137,7 @@ application state:
     "identifier": "com.example.my-app"
   },
   "runtime": {
-    "version": "0.4.0",
+    "version": "0.4.1",
     "protocol": 1,
     "startedAt": "2026-11-15T07:55:00Z",
     "uptimeMs": 300000
@@ -203,11 +203,11 @@ optimized for local desktop apps.
 
 ## Status and next
 
-Linux x64 is the verified platform for the 0.4.0 preview. Windows and macOS
+Linux x64 is the verified platform for the 0.4.1 preview. Windows and macOS
 already build SDKs, runtime binaries and installers in CI; runtime/UI smoke and
 signing are the remaining gates before public rollout. Fedora/RHEL native RPM
 packaging and the extension API are in development. npm registry publishing
-ships with the 0.4.0 release.
+ships with the 0.4.1 release.
 
 ## Extensions
 
