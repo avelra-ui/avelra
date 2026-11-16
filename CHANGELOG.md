@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.2] - 2026-11-16
+
+### Fixed
+
+- SDK deb packages now use the real Avelra maintainer identity.
+- Application deb packages now use the `maintainer` field from
+  `avelra.config.json`; a missing or malformed value is rejected.
+- The starter config exposes `maintainer` for app packaging.
+
 ## [0.4.1] - 2026-11-16
 
 ### Fixed
@@ -116,3 +125,5 @@ production-stable release.
 [0.4.0]: https://github.com/avelra-ui/avelra/releases/tag/v0.4.0
 
 [0.4.1]: https://github.com/avelra-ui/avelra/releases/tag/v0.4.1
+
+[0.4.2]: https://github.com/avelra-ui/avelra/releases/tag/v0.4.2

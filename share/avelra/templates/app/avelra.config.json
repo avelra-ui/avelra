@@ -4,6 +4,7 @@
   "identifier": "com.example.my-app",
   "client": "client",
   "icon": "icon.png",
+  "maintainer": "",
   "window": {
     "title": "my-app",
     "width": 960,

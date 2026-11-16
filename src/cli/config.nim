@@ -21,6 +21,7 @@ type
     identifier*: string
     client*: string
     icon*: string
+    maintainer*: string
     linuxDebDepends*: seq[string]
     window*: WindowConfig
     extensions*: seq[ExtensionConfig]
@@ -51,6 +52,7 @@ proc defaultConfig*(name = "my-app"): AppConfig =
     identifier: "com.example." & slugify(name),
     client: "client",
     icon: "",
+    maintainer: "",
     linuxDebDepends: @defaultLinuxDebDepends,
     window: WindowConfig(title: name, width: 600, height: 400),
     extensions: @[]
@@ -69,6 +71,16 @@ proc optionalString(obj: JsonNode; key, fallback: string): string =
   if obj[key].kind != JString:
     raise newException(ValueError, "config field '" & key & "' must be a string")
   obj[key].getStr()
+
+proc debMaintainer*(config: AppConfig): string =
+  ## Debian requires a real author identity for application packages.
+  result = config.maintainer.strip()
+  let open = result.find('<')
+  let close = result.find('>')
+  if open <= 0 or close <= open + 1 or close != result.high or
+      result[open + 1 ..< close].count('@') != 1:
+    raise newException(ValueError,
+      "config field 'maintainer' must be \"Name <email>\" for deb packages")
 
 proc hostOs*(): string =
   ## The manifest OS key used for the current build.
@@ -187,6 +199,7 @@ proc loadConfig*(path: string): AppConfig =
   )
   result.client = optionalString(node, "client", "client")
   result.icon = optionalString(node, "icon", "")
+  result.maintainer = optionalString(node, "maintainer", "")
 
   result.linuxDebDepends = @defaultLinuxDebDepends
   if node.hasKey("linuxDebDepends"):
@@ -252,6 +265,7 @@ proc saveConfig*(path: string; config: AppConfig) =
     "identifier": config.identifier,
     "client": config.client,
     "icon": config.icon,
+    "maintainer": config.maintainer,
     "linuxDebDepends": config.linuxDebDepends,
     "window": {
       "title": config.window.title,

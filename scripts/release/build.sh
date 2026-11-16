@@ -136,7 +136,7 @@ Section: devel
 Priority: optional
 Architecture: amd64
 Depends: libgtk-3-0t64 | libgtk-3-0, libwebkit2gtk-4.1-0
-Maintainer: Avelra <noreply@example.invalid>
+Maintainer: Avelra <contact@avelra.dev>
 Description: Avelra desktop runtime and SDK
 CONTROL
   dpkg-deb --root-owner-group --build "$DEB_ROOT" \

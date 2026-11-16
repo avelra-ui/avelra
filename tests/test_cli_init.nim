@@ -60,6 +60,7 @@ try:
       let result = execCmdEx(cliPath() & " init " & app)
       check result.exitCode == 0
       check fileExists(app / "avelra.config.json")
+      check readFile(app / "avelra.config.json").contains("\"maintainer\"")
       check fileExists(app / "client" / "index.html")
 finally:
   removeDir(root)

@@ -26,6 +26,7 @@ try:
       let path = root / "avelra.config.json"
       var config = defaultConfig("Demo App")
       config.version = "1.2.3"
+      config.maintainer = "Demo User <demo@example.com>"
       config.icon = "icons/app.png"
       config.linuxDebDepends = @["zenity", "libgtk-3-0"]
       config.window.width = 800
@@ -33,6 +34,7 @@ try:
       let loaded = loadConfig(path)
       check loaded.name == "Demo App"
       check loaded.version == "1.2.3"
+      check loaded.maintainer == "Demo User <demo@example.com>"
       check loaded.icon == "icons/app.png"
       check loaded.linuxDebDepends == @["zenity", "libgtk-3-0"]
       check loaded.window.width == 800

@@ -124,7 +124,7 @@ proc buildDeb(binary, configPath: string; config: AppConfig; output: string) =
       "Architecture: " & architecture & "\n"
     if config.linuxDebDepends.len > 0:
       control.add("Depends: " & config.linuxDebDepends.join(", ") & "\n")
-    control.add("Maintainer: Avelra <noreply@example.invalid>\n" &
+    control.add("Maintainer: " & debMaintainer(config) & "\n" &
       "Description: " & config.name & "\n")
     writeFile(root / "DEBIAN" / "control", control)
 
@@ -274,7 +274,7 @@ proc buildAppDeb(appDir, configPath: string; config: AppConfig; output: string) 
       "Architecture: " & architecture & "\n"
     if config.linuxDebDepends.len > 0:
       control.add("Depends: " & config.linuxDebDepends.join(", ") & "\n")
-    control.add("Maintainer: Avelra <noreply@example.invalid>\n" &
+    control.add("Maintainer: " & debMaintainer(config) & "\n" &
       "Description: " & config.name & "\n")
     writeFile(root / "DEBIAN" / "control", control)
 

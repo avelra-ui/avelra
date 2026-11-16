@@ -1,6 +1,6 @@
 # Troubleshooting
 
-This page covers common problems in the **0.4.1 Linux x64 public preview**. Run
+This page covers common problems in the **0.4.2 Linux x64 public preview**. Run
 `avelra doctor` first: it checks GTK, WebKitGTK and the runtime dependencies.
 
 ## Installation
@@ -12,7 +12,7 @@ The SDK `bin/` directory is not on `PATH`.
 For the portable tar:
 
 ```bash
-export PATH="$PWD/avelra-sdk-0.4.1-linux-x64/bin:$PATH"
+export PATH="$PWD/avelra-sdk-0.4.2-linux-x64/bin:$PATH"
 avelra --version
 ```
 
@@ -64,7 +64,7 @@ node --version
 Install Node 22 or 24, then retry:
 
 ```bash
-npm install ./avelra-0.4.1.tgz
+npm install ./avelra-0.4.2.tgz
 npx avelra --version
 ```
 

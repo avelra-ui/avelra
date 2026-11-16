@@ -15,6 +15,7 @@ copyFile("/bin/true", binary)
 writeFile(icon, "png")
 var appConfig = defaultConfig("Demo App")
 appConfig.version = "1.2.3"
+appConfig.maintainer = "Demo User <demo@example.com>"
 appConfig.icon = "icon.png"
 appConfig.linuxDebDepends = @["zenity"]
 appConfig.identifier = "com.example.demo"
@@ -43,6 +44,7 @@ try:
         check info.contains("Version: 1.2.3")
         check info.contains("Architecture: amd64")
         check info.contains("Depends: zenity")
+        check info.contains("Maintainer: Demo User <demo@example.com>")
 
     test "default app-dir deb declares GTK/WebKit runtime deps":
       if findExe("dpkg-deb").len == 0:
@@ -53,12 +55,24 @@ try:
         copyFile("/bin/true", appDir / "bin" / "demo-app")
         var appConfig = defaultConfig("Demo App")
         appConfig.identifier = "com.example.demo"
+        appConfig.maintainer = "Demo User <demo@example.com>"
         saveConfig(appDir / "avelra.config.json", appConfig)
         let output = root / "appdir-default-deps.deb"
         discard buildAppInstaller(appDir, installerDeb, output)
         let info = execCmdEx("dpkg-deb -I " & output).output
         check info.contains("libgtk-3-0t64 | libgtk-3-0")
         check info.contains("libwebkit2gtk-4.1-0")
+
+    test "deb requires a valid application maintainer":
+      if findExe("dpkg-deb").len == 0:
+        check true
+      else:
+        var config = defaultConfig("Demo App")
+        config.identifier = "com.example.demo"
+        saveConfig(root / "no-maintainer.json", config)
+        expect ValueError:
+          discard buildInstaller(binary, root / "no-maintainer.json",
+            installerDeb, root / "no-maintainer.deb")
 
     test "app-dir appimage reports a missing appimagetool":
       let appDir = root / "appdir-appimage"
@@ -113,6 +127,7 @@ try:
       appConfig.version = "1.2.3"
       appConfig.identifier = "com.example.demo"
       appConfig.icon = "icon.png"
+      appConfig.maintainer = "Demo User <demo@example.com>"
       saveConfig(appDir / "avelra.config.json", appConfig)
       let output = root / "appdir.deb"
       discard buildAppInstaller(appDir, installerDeb, output)

@@ -1,7 +1,7 @@
 # Using Avelra
 
 This page covers the application project, CLI, core API, health checks and
-packaging for the **0.4.1 Linux x64 public preview**.
+packaging for the **0.4.2 Linux x64 public preview**.
 
 ## Project layout
 
@@ -34,6 +34,7 @@ embeds the client assets in the executable, so the built app runs from one file.
   "identifier": "com.example.my-app",
   "client": "client",
   "icon": "icon.png",
+  "maintainer": "Your Name <you@example.com>",
   "window": {
     "title": "my-app",
     "width": 960,
@@ -49,6 +50,7 @@ embeds the client assets in the executable, so the built app runs from one file.
 | `identifier` | no | Stable package identifier |
 | `client` | no | Client directory; defaults to `client` |
 | `icon` | no | Icon path |
+| `maintainer` | for deb | Package author as `Name <email>` |
 | `window.title` | no | Window title |
 | `window.width` / `height` | no | Initial window size; defaults to 600×400 |
 | `linuxDebDepends` | no | Extra Debian dependencies |
@@ -137,7 +139,7 @@ application state:
     "identifier": "com.example.my-app"
   },
   "runtime": {
-    "version": "0.4.1",
+    "version": "0.4.2",
     "protocol": 1,
     "startedAt": "2026-11-15T07:55:00Z",
     "uptimeMs": 300000
@@ -203,11 +205,11 @@ optimized for local desktop apps.
 
 ## Status and next
 
-Linux x64 is the verified platform for the 0.4.1 preview. Windows and macOS
+Linux x64 is the verified platform for the 0.4.2 preview. Windows and macOS
 already build SDKs, runtime binaries and installers in CI; runtime/UI smoke and
 signing are the remaining gates before public rollout. Fedora/RHEL native RPM
 packaging and the extension API are in development. npm registry publishing
-ships with the 0.4.1 release.
+ships with the 0.4.2 release.
 
 ## Extensions
 

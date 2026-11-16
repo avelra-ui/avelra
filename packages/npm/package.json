@@ -1,6 +1,6 @@
 {
   "name": "avelra",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "A desktop app framework for web developers — React, Vue, Svelte or vanilla UI on a tiny native runtime.",
   "license": "MIT",
   "private": false,
