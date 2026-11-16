@@ -4,8 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release tag, for example v0.4.0
+        description: Existing release tag, for example v0.4.1
         required: true
+      promote_only:
+        description: Skip publish and only promote an already published version
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: npm-publish-${{ inputs.tag }}
@@ -55,6 +60,7 @@ jobs:
         run: sudo npm install -g npm@11.6.0
 
       - name: Publish to npm with provenance
+        if: ${{ !inputs.promote_only }}
         env:
           INPUTS_TAG: ${{ inputs.tag }}
         run: |
