@@ -12,6 +12,8 @@
   request.
 - `.deb` control generation rejects line breaks and control characters in
   `maintainer`, `version` and `name`, and validates Debian version syntax.
+- macOS CI verifies the official Nim archive with a pinned SHA256 before
+  extraction.
 
 ## [0.4.2] - 2026-11-16
 
