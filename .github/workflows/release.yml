@@ -35,12 +35,8 @@ jobs:
           git merge-base --is-ancestor "${GITHUB_SHA}" origin/main
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Nim
-        uses: jiro4989/setup-nim-action@efd7b4f2cab6441597916438c4f03425167d453b # v2
-        with:
-          nim-version: "2.2.12"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Install Nim
+        run: ./scripts/ci/install-nim-linux.sh 2.2.12
       - name: Install native dependencies
         run: |
           sudo apt-get update
@@ -98,12 +94,9 @@ jobs:
           git merge-base --is-ancestor "${GITHUB_SHA}" origin/main
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Nim
-        uses: jiro4989/setup-nim-action@efd7b4f2cab6441597916438c4f03425167d453b # v2
-        with:
-          nim-version: "2.2.12"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Install Nim
+        shell: pwsh
+        run: ./scripts/ci/install-nim-windows.ps1 2.2.12
       - name: Build SDK
         shell: pwsh
         run: ./scripts/build/windows.ps1
