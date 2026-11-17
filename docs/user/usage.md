@@ -104,6 +104,7 @@ await window.avelra.app.healthCheck();
 await window.avelra.app.exit();
 await window.avelra.os.getEnv("HOME");
 await window.avelra.os.openUrl("https://avelra.dev/");
+await window.avelra.os.openUrl("mailto:hello@avelra.dev");
 ```
 
 | Method | Result |
@@ -113,14 +114,19 @@ await window.avelra.os.openUrl("https://avelra.dev/");
 | `app.healthCheck()` | health snapshot |
 | `app.exit()` | resolves after the close request is sent |
 | `os.getEnv(key)` | environment variable value |
-| `os.openUrl(url)` | resolves after the browser handler completes |
+| `os.openUrl(url)` | hands the URL to the system handler |
 
 All methods return a Promise. `ready` and `exit` are commands; callers may
 ignore the Promise. The Promise confirms completion of the operation, so UI
 updates should be driven by the page's own rendering flow.
 
-`os.openUrl` supports `http` and `https`. The browser process runs outside the
-GUI thread; the Promise resolves when its exit status is known.
+`os.openUrl` supports `http`, `https` and `mailto`. Other schemes are rejected.
+On Windows the Promise resolves after `ShellExecuteW` hands the URL to the
+registered handler; on Linux and macOS it resolves when the handler process
+exits. `mailto` is best-effort and depends on a registered mail client.
+
+Invalid URLs return `NE_RT_NATRTER`. If the URL is valid but the OS handler is
+unavailable or fails to launch, the result is `NE_RT_OPFAILED`.
 
 ## Health check
 
