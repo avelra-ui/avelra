@@ -1,0 +1,11 @@
+name: release-rehearsal
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/release-build.yml
