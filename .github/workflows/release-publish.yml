@@ -74,6 +74,14 @@ jobs:
           ./scripts/package/npm-universal.sh "$PWD/npm-input" "$PWD/release/npm"
           (cd release/npm && sha256sum *.tgz) > release/SHA256SUMS-npm
 
+      - name: Generate SBOM
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sbom_sha="$(git rev-parse HEAD)"
+          gh api "repos/${GITHUB_REPOSITORY}/dependency-graph/sbom?sha=${sbom_sha}" --jq '.sbom' > release/sbom.spdx.json
+          test -s release/sbom.spdx.json
+
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -88,6 +96,7 @@ jobs:
             release/manifest-*.json \
             release/SHA256SUMS-* \
             release/npm/*.tgz \
+            release/sbom.spdx.json \
             release/*/artifacts/* \
             --verify-tag \
             --title "Avelra ${version}" \
