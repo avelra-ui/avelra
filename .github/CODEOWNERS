@@ -1,0 +1,11 @@
+# Default owner for the public repository.
+* @d3enworks
+
+# Security-sensitive paths.
+/.github/workflows/ @d3enworks
+/.github/CODEOWNERS @d3enworks
+/SECURITY.md @d3enworks
+/scripts/ci/ @d3enworks
+/scripts/release/ @d3enworks
+/src/adapters/system/url_open.nim @d3enworks
+/src/installer/ @d3enworks
