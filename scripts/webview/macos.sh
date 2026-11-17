@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Build webview/webview as a static library for macOS arm64.
 # Unverified: run on macOS with Xcode Command Line Tools and CMake.
 set -euo pipefail
