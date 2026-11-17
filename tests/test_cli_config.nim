@@ -47,6 +47,33 @@ try:
       check loaded.linuxDebDepends.contains("libwebkit2gtk-4.1-0")
       check loaded.linuxDebDepends.contains("libgtk-3-0t64 | libgtk-3-0")
 
+    test "deb control values reject line injection":
+      var config = defaultConfig("Demo")
+      config.maintainer = "Demo <demo@example.com>\nPackage: evil"
+      expect ValueError:
+        discard debMaintainer(config)
+
+      config.maintainer = "Demo <demo@example.com>"
+      config.version = "1.2.3\nArchitecture: all"
+      expect ValueError:
+        discard debVersion(config)
+
+      config.version = "1.2.3"
+      config.name = "Demo\nDescription: evil"
+      expect ValueError:
+        discard debDescription(config)
+
+    test "deb control values require valid formats":
+      var config = defaultConfig("Demo")
+      config.maintainer = "Demo <demo@example.com>"
+      config.version = "1.2.3-rc.1"
+      check debMaintainer(config) == "Demo <demo@example.com>"
+      check debVersion(config) == "1.2.3-rc.1"
+      check debDescription(config) == "Demo"
+      config.version = "v1.2.3"
+      expect ValueError:
+        discard debVersion(config)
+
     test "missing name is rejected":
       let path = root / "bad.json"
       writeFile(path, """{"client":"client"}""")

@@ -55,6 +55,9 @@ embeds the client assets in the executable, so the built app runs from one file.
 | `window.width` / `height` | no | Initial window size; defaults to 600×400 |
 | `linuxDebDepends` | no | Extra Debian dependencies |
 
+For `.deb`, `version` must be Debian-compatible, and `maintainer`/`name` must
+be single-line values. Control characters and line breaks are rejected.
+
 Use relative URLs for CSS, JS and other assets:
 
 ```html

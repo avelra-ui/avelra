@@ -72,15 +72,56 @@ proc optionalString(obj: JsonNode; key, fallback: string): string =
     raise newException(ValueError, "config field '" & key & "' must be a string")
   obj[key].getStr()
 
+proc hasControlChars(value: string): bool =
+  for ch in value:
+    let code = ord(ch)
+    if code < 0x20 or code == 0x7F:
+      return true
+
 proc debMaintainer*(config: AppConfig): string =
   ## Debian requires a real author identity for application packages.
   result = config.maintainer.strip()
+  if result.len == 0 or result != config.maintainer or hasControlChars(result):
+    raise newException(ValueError,
+      "config field 'maintainer' must be \"Name <email>\" for deb packages")
   let open = result.find('<')
   let close = result.find('>')
   if open <= 0 or close <= open + 1 or close != result.high or
       result[open + 1 ..< close].count('@') != 1:
     raise newException(ValueError,
       "config field 'maintainer' must be \"Name <email>\" for deb packages")
+
+proc debVersion*(config: AppConfig): string =
+  ## Debian control values are line-oriented; reject line breaks and injection.
+  result = config.version
+  if result.len == 0 or result != result.strip() or hasControlChars(result):
+    raise newException(ValueError,
+      "config field 'version' must be a valid Debian version")
+  var rest = result
+  let epochEnd = rest.find(':')
+  if epochEnd >= 0:
+    if epochEnd == 0:
+      raise newException(ValueError,
+        "config field 'version' must be a valid Debian version")
+    for i in 0 ..< epochEnd:
+      if rest[i] notin {'0' .. '9'}:
+        raise newException(ValueError,
+          "config field 'version' must be a valid Debian version")
+    rest = rest[epochEnd + 1 .. ^1]
+  if rest.len == 0 or rest[0] notin {'0' .. '9'}:
+    raise newException(ValueError,
+      "config field 'version' must be a valid Debian version")
+  for ch in rest:
+    if ch notin {'a' .. 'z', 'A' .. 'Z', '0' .. '9', '.', '+', '-', '~'}:
+      raise newException(ValueError,
+        "config field 'version' must be a valid Debian version")
+
+proc debDescription*(config: AppConfig): string =
+  ## Reject control characters that could add fields to DEBIAN/control.
+  result = config.name
+  if result.len == 0 or result != result.strip() or hasControlChars(result):
+    raise newException(ValueError,
+      "config field 'name' must be a single-line Debian description")
 
 proc hostOs*(): string =
   ## The manifest OS key used for the current build.
