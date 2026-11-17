@@ -118,14 +118,14 @@ proc buildDeb(binary, configPath: string; config: AppConfig; output: string) =
       if probe.exitCode == 0: probe.output.strip()
       else: "amd64"
     var control = "Package: " & slug & "\n" &
-      "Version: " & config.version & "\n" &
+      "Version: " & debVersion(config) & "\n" &
       "Section: utils\n" &
       "Priority: optional\n" &
       "Architecture: " & architecture & "\n"
     if config.linuxDebDepends.len > 0:
       control.add("Depends: " & config.linuxDebDepends.join(", ") & "\n")
     control.add("Maintainer: " & debMaintainer(config) & "\n" &
-      "Description: " & config.name & "\n")
+      "Description: " & debDescription(config) & "\n")
     writeFile(root / "DEBIAN" / "control", control)
 
     let result = execCmdEx(quoteShellCommand([
@@ -268,14 +268,14 @@ proc buildAppDeb(appDir, configPath: string; config: AppConfig; output: string) 
       if probe.exitCode == 0: probe.output.strip()
       else: "amd64"
     var control = "Package: " & slug & "\n" &
-      "Version: " & config.version & "\n" &
+      "Version: " & debVersion(config) & "\n" &
       "Section: utils\n" &
       "Priority: optional\n" &
       "Architecture: " & architecture & "\n"
     if config.linuxDebDepends.len > 0:
       control.add("Depends: " & config.linuxDebDepends.join(", ") & "\n")
     control.add("Maintainer: " & debMaintainer(config) & "\n" &
-      "Description: " & config.name & "\n")
+      "Description: " & debDescription(config) & "\n")
     writeFile(root / "DEBIAN" / "control", control)
 
     let result = execCmdEx(quoteShellCommand(["dpkg-deb", "--build", root, output]))

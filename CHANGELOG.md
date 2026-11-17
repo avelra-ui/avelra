@@ -10,6 +10,8 @@
   control characters are rejected.
 - Handler launch failures use `NE_RT_OPFAILED` instead of reporting an invalid
   request.
+- `.deb` control generation rejects line breaks and control characters in
+  `maintainer`, `version` and `name`, and validates Debian version syntax.
 
 ## [0.4.2] - 2026-11-16
 
