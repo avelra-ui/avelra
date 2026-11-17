@@ -95,3 +95,8 @@ when a dependency needs attention.
 
 For the release verification matrix, see
 [avelra.dev/quality](https://avelra.dev/quality/).
+
+## Security
+
+Report vulnerabilities through [GitHub private vulnerability reporting](https://github.com/avelra-ui/avelra/security/advisories/new)
+or <security@avelra.dev>. See [SECURITY.md](SECURITY.md).
