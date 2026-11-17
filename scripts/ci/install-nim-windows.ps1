@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $sha256 = "dafe9c81f8118fac2e07ee24f3649448a590d8b0f3b55d1a97c66f99035cc8e6"
-$url = "https://nim-lang.org/download/nim-$Version-x64.zip"
+$url = "https://nim-lang.org/download/nim-${Version}_x64.zip"
 $tmp = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { $env:TEMP }
 $archive = Join-Path $tmp "nim-$Version.zip"
 $nimRoot = Join-Path $tmp "nim-$Version"
