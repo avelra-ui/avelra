@@ -15,6 +15,11 @@ putEnv("AVELRA_HOME", root)
 
 try:
   suite "CLI layout":
+    when defined(windows):
+      test "executableName appends .exe on Windows":
+        check executableName("avelra-runtime") == "avelra-runtime.exe"
+        check executableName("app") == "app.exe"
+
     test "AVELRA_HOME overrides the install root":
       check avelraHome() == root
       check toolPath("avelra-runtime") ==
