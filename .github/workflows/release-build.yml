@@ -112,7 +112,7 @@ jobs:
           if (-not (Test-Path $cli)) { throw "avelra.exe was not built" }
           & $cli init build/smoke-app
           Push-Location build/smoke-app
-          & $cli --config .velra.config.json build
+          & $cli --config .\avelra.config.json build
           if (-not (Test-Path .\dist\smoke-app\smoke-app.exe)) {
             throw "Windows app build did not produce dist/smoke-app/smoke-app.exe"
           }
