@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixed
+
+- Windows `avelra build` now names the application executable `<slug>.exe`
+  (and `bin/<slug>.exe` for extension-aware builds), so it launches through
+  ShellExecute/Run without manual renaming.
+
 ### Security
 
 - `os.openUrl` no longer uses `cmd /c start` on Windows; it uses

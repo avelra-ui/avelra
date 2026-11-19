@@ -69,6 +69,7 @@ proc buildApp(configPath: string): BuildResult =
   let runtime = toolPath("avelra-runtime")
   let packer = toolPath("avelra-pack")
   let slug = slugify(config.name)
+  let binaryName = executableName(slug)
   let outputDir = project / "dist" / slug
   let hasExtensions = config.extensions.len > 0
 
@@ -81,8 +82,8 @@ proc buildApp(configPath: string): BuildResult =
         "extensions directory not found: " & sourceExtensions)
 
   createDir(outputDir)
-  let output = if hasExtensions: outputDir / "bin" / slug
-               else: outputDir / slug
+  let output = if hasExtensions: outputDir / "bin" / binaryName
+               else: outputDir / binaryName
   let command = quoteShellCommand([
     packer,
     "--binary", runtime,

@@ -18,7 +18,8 @@ try:
       let configPath = initProject(app, templateDirPath)
       let result = execCmdEx(cliPath() & " --config " & configPath & " build")
       check result.exitCode == 0
-      let binary = app / "dist" / "demo" / "demo"
+      let binaryName = when defined(windows): "demo.exe" else: "demo"
+      let binary = app / "dist" / "demo" / binaryName
       check fileExists(binary)
       check getFileSize(binary) > 1000
 
@@ -28,7 +29,8 @@ try:
       let result = execCmdEx(cliPath() & " --config " & configPath & " build")
       check result.exitCode == 0
 
-      let binary = app / "dist" / "embedded" / "embedded"
+      let embeddedName = when defined(windows): "embedded.exe" else: "embedded"
+      let binary = app / "dist" / "embedded" / embeddedName
       let footer = readPayloadFooter(binary)
       check footer.isSome
       let info = footer.get
@@ -60,7 +62,8 @@ try:
       writeFile(configPath, config.pretty & "\n")
       let result = execCmdEx(cliPath() & " --config " & configPath & " build")
       check result.exitCode == 0
-      check fileExists(app / "dist" / "with-extension" / "bin" / "with-extension")
+      let extName = when defined(windows): "with-extension.exe" else: "with-extension"
+      check fileExists(app / "dist" / "with-extension" / "bin" / extName)
       check fileExists(app / "dist" / "with-extension" / "avelra.config.json")
       check fileExists(app / "dist" / "with-extension" / "extensions" / "echo" / "echo")
       check not fileExists(app / "dist" / "with-extension" / "extensions" / "echo" / "echo.nim")

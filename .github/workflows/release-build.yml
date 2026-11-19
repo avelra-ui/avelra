@@ -105,6 +105,19 @@ jobs:
         shell: pwsh
         run: ./scripts/build/windows.ps1
 
+      - name: Verify Windows app output
+        shell: pwsh
+        run: |
+          $cli = Join-Path $PWD 'build/bin/avelra.exe'
+          if (-not (Test-Path $cli)) { throw "avelra.exe was not built" }
+          & $cli init build/smoke-app
+          Push-Location build/smoke-app
+          & $cli --config .\avelra.config.json build
+          if (-not (Test-Path .\dist\smoke-app\smoke-app.exe)) {
+            throw "Windows app build did not produce dist/smoke-app/smoke-app.exe"
+          }
+          Pop-Location
+
       - name: Assemble release and NSIS
         shell: pwsh
         run: |
