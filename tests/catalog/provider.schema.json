@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Avelra test provider",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "platforms",
+    "capabilities"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9.-]+$"
+    },
+    "platforms": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "linux-x64",
+          "windows-x64",
+          "macos-arm64",
+          "macos-x64"
+        ]
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "cli-binary",
+          "start-app-artifact",
+          "release-artifact",
+          "desktop-session",
+          "headless",
+          "browser",
+          "webkitgtk-4.1",
+          "webview2",
+          "installer",
+          "protocol-endpoint",
+          "package-manager",
+          "root",
+          "temp-fs",
+          "dependency-removal"
+        ]
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "kind": {
+      "enum": [
+        "local",
+        "external"
+      ]
+    },
+    "executor_env": {
+      "type": "string"
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "external"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "executor_env"
+        ]
+      }
+    }
+  ]
+}

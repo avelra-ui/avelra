@@ -1,0 +1,8 @@
+schema_version: 1
+id: ci-windows-x64
+platforms:
+- windows-x64
+capabilities:
+- cli-binary
+artifacts:
+  cli-binary: build/bin/avelra.exe

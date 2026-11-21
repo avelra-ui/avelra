@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Build webview/webview as a static library for macOS arm64.
+# Build webview/webview as a static library for native macOS architecture.
 # Unverified: run on macOS with Xcode Command Line Tools and CMake.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BUILD_DIR="${BUILD_DIR:-$ROOT/build}"
 SRC="$BUILD_DIR/webview-src"
-BUILD="$SRC/build-macos"
-OUT="$BUILD_DIR/vendor/webview/macos/lib"
+ARCH="${AVELRA_MACOS_ARCH:-$(uname -m)}"
+BUILD="$SRC/build-macos-$ARCH"
+OUT="$BUILD_DIR/vendor/webview/macos/$ARCH/lib"
 VERSION="0.12.0"
 
 cd "$ROOT"
@@ -18,10 +19,10 @@ if [[ ! -d "$SRC/.git" ]]; then
     https://github.com/webview/webview.git "$SRC"
 fi
 
-# arm64 only for the current scope; x64/universal are not supported yet.
+
 cmake -S "$SRC" -B "$BUILD" -G Xcode \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_OSX_ARCHITECTURES=arm64 \
+  -DCMAKE_OSX_ARCHITECTURES="$ARCH" \
   -DWEBVIEW_BUILD=ON \
   -DWEBVIEW_BUILD_STATIC_LIBRARY=ON \
   -DWEBVIEW_ENABLE_CHECKS=OFF \

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Avelra test run plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "scheduler", "runs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "scheduler": {"enum": ["ci", "manual", "release"]},
+    "runs": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["case", "provider"],
+        "properties": {
+          "case": {"type": "string", "minLength": 1},
+          "provider": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

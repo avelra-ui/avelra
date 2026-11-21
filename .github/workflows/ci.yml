@@ -1,0 +1,112 @@
+name: ci
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Secret scan
+        run: ./scripts/ci/scan-secrets.sh
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+      - name: ShellCheck
+        run: |
+          mapfile -t files < <(find scripts tests -type f -name '*.sh' -print)
+          test "${#files[@]}" -gt 0
+          shellcheck --severity=warning "${files[@]}"
+      - name: Documentation check
+        run: ./scripts/checks/docs.py
+      - name: Install Nim
+        run: ./scripts/ci/install-nim-linux.sh 2.2.12
+      - name: Nim checks
+        run: ./scripts/checks/platforms.sh
+
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Install Nim
+        run: ./scripts/ci/install-nim-linux.sh 2.2.12
+      - name: Install native and test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake ninja-build pkg-config python3 python3-yaml \
+            libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev
+      - name: Build CLI
+        run: ./scripts/build/linux.sh
+      - name: Run catalog suite
+        run: ./tests/run_tests.sh --suite tests/catalog/suites/ci.yaml --provider ci-linux-x64
+
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Install Nim
+        shell: pwsh
+        run: ./scripts/ci/install-nim-windows.ps1 2.2.12
+      - name: Build CLI
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          New-Item -ItemType Directory -Force -Path build/bin | Out-Null
+          nim c -d:release --mm:orc --hints:off --path:src "-d:avelraVersion=$version" --out:build/bin/avelra.exe src/bin/avelra_cli.nim
+      - name: Install test dependency
+        shell: pwsh
+        run: python -m pip install PyYAML
+      - name: Run catalog suite
+        shell: pwsh
+        run: python tests/catalog/run-suite.py --suite tests/catalog/suites/ci.yaml --provider ci-windows-x64
+
+# macOS jobs are disabled for 0.5.0: only Linux and Windows are release-verified.
+#   macos-x64:
+#     runs-on: macos-15-intel
+#     timeout-minutes: 15
+#     steps:
+#       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+#       - name: Verify x86_64 runner
+#         run: test "$(uname -m)" = "x86_64"
+#       - name: Install Nim
+#         run: ./scripts/ci/install-nim-macos.sh 2.2.12
+#       - name: Build CLI
+#         run: |
+#           version="$(cat VERSION)"
+#           mkdir -p build/bin
+#           nim c -d:release --mm:orc --hints:off --path:src "-d:avelraVersion=$version" --out:build/bin/avelra src/bin/avelra_cli.nim
+#       - name: Install test dependency
+#         run: python3 -m pip install --user PyYAML
+#       - name: Run catalog suite
+#         run: ./tests/run_tests.sh --suite tests/catalog/suites/ci.yaml --provider ci-macos-x64
+
+#   macos-arm64:
+#     runs-on: macos-15
+#     timeout-minutes: 15
+#     steps:
+#       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+#       - name: Verify arm64 runner
+#         run: test "$(uname -m)" = "arm64"
+#       - name: Install Nim
+#         run: ./scripts/ci/install-nim-macos.sh 2.2.12
+#       - name: Build CLI
+#         run: |
+#           version="$(cat VERSION)"
+#           mkdir -p build/bin
+#           nim c -d:release --mm:orc --hints:off --path:src "-d:avelraVersion=$version" --out:build/bin/avelra src/bin/avelra_cli.nim
+#       - name: Install test dependency
+#         run: python3 -m pip install --user PyYAML
+#       - name: Run catalog suite
+#         run: ./tests/run_tests.sh --suite tests/catalog/suites/ci.yaml --provider ci-macos-arm64
