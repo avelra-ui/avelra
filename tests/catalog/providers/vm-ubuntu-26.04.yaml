@@ -1,0 +1,8 @@
+schema_version: 1
+kind: external
+executor_env: AVELRA_VM_PROVIDER
+args: ["ubuntu-26.04"]
+platforms: [linux-x64]
+capabilities: [cli-binary]
+artifacts:
+  cli-binary: /home/vladimir/avelra-case/bin/avelra

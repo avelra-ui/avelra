@@ -57,6 +57,40 @@
       "additionalProperties": {
         "type": "string"
       }
+    },
+    "kind": {
+      "enum": [
+        "local",
+        "external"
+      ]
+    },
+    "executor_env": {
+      "type": "string"
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "external"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "executor_env"
+        ]
+      }
+    }
+  ]
 }

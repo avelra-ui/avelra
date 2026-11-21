@@ -28,7 +28,7 @@ type
 const
   MinWindowsVersion* = "10.0.19044"   # Windows 10 22H2 (LTSC 2021)
   MinWebView2Version* = "100.0.0"
-  MinMacosVersion* = "12.0"
+  MinMacosVersion* = "15.0"
 
 proc parseVersion*(value: string): tuple[major, minor, patch: int] =
   let parts = value.strip.split('.')
@@ -98,15 +98,15 @@ proc evaluateWindows*(snapshot: PlatformSnapshot): seq[CheckResult] =
 proc evaluateMacos*(snapshot: PlatformSnapshot): seq[CheckResult] =
   result.add checkVersion(
     "macOS", snapshot.osVersion, MinMacosVersion,
-    "update macOS to 12.0 or newer"
+    "update macOS to 15.0 or newer"
   )
-  if snapshot.arch == "arm64":
-    result.add CheckResult(display: "architecture", detail: "arm64",
+  if snapshot.arch in ["arm64", "x86_64"]:
+    result.add CheckResult(display: "architecture", detail: snapshot.arch,
       state: checkOk)
   else:
     result.add CheckResult(display: "architecture",
-      detail: snapshot.arch & " (arm64 required)", state: checkTooOld,
-      hint: "use the arm64 Avelra build")
+      detail: snapshot.arch & " (arm64 or x86_64 required)", state: checkTooOld,
+      hint: "use the arm64 or x86_64 Avelra build")
   if snapshot.webKitPresent:
     result.add CheckResult(display: "WebKit framework", detail: "present",
       state: checkOk)

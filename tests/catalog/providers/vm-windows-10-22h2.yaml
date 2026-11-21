@@ -1,0 +1,8 @@
+schema_version: 1
+kind: external
+executor_env: AVELRA_WINDOWS_PROVIDER
+args: ["windows-10-22h2"]
+platforms: [windows-x64]
+capabilities: [cli-binary]
+artifacts:
+  cli-binary: C:\\Users\\avelra\\sdk\\avelra.exe

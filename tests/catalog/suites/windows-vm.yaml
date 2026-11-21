@@ -1,0 +1,5 @@
+schema_version: 1
+id: windows-vm
+levels: [contract]
+targets: [sdk]
+techniques: [functional, negative, boundary, regression]

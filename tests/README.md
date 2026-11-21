@@ -14,8 +14,10 @@ tests/
 │   ├── run-plan.schema.json  схема запуска
 │   ├── providers/            описания провайдеров
 │   ├── run-plans/            выбранные case/provider
+│   ├── suites/               селекторы кейсов для CI/host
 │   ├── runners/              реализации действий
 │   ├── run-case.py           executor
+│   ├── run-suite.py          suite executor
 │   └── fixtures/             входные данные
 ├── component/
 ├── integration/
@@ -63,6 +65,22 @@ assertions:
 ```text
 environment, adapter, ci, vm, vds, real-machine, host
 ```
+
+## Suite
+
+Suite выбирает кейсы по metadata, без перечисления case ID в CI:
+
+```yaml
+schema_version: 1
+id: ci
+levels: [component, contract]
+targets: [sdk]
+techniques: [functional, negative, boundary, regression]
+```
+
+Case попадает в suite при совпадении level, target, platform и technique.
+Negative-кейсы входят через `technique: negative` и `condition`, а не через
+отдельный NEG-список.
 
 ## Level
 
@@ -149,6 +167,18 @@ artifacts:
 capability, но artifact отсутствует — это `error`, а не `skip`.
 
 Провайдерами могут быть `gh-runner`, `local-vm`, `vds`, `real-machine`.
+VM provider может быть external executor'ом; он возвращает observation, а
+assertions проверяет run-case.
+
+CI использует representative matrix:
+
+```text
+ci-linux-x64
+ci-windows-x64
+ci-macos-x64
+ci-macos-arm64
+```
+
 CI, ручной запуск и release являются schedulers, а не свойствами кейса.
 Нет required capability → `skip` с причиной.
 
@@ -233,3 +263,22 @@ Fixture — входные данные, применяемые к workspace pro
 
 Provider обеспечивает изоляцию, одноразовость и cleanup. Fixture не выполняет
 `init`/`build`; для start-app/e2e используется prebuilt artifact.
+
+## Linux VM matrix
+
+```bash
+AVELRA_VM_PROVIDER=/path/to/provider-cli-version.sh VM_SNAPSHOT_DIR=/path/to/vm-snapshots ./tests/run-linux-vms.sh
+```
+
+Providers: `vm-ubuntu-22.04`, `vm-ubuntu-24.04`, `vm-ubuntu-26.04`,
+`vm-debian-12`, `vm-debian-13`. Все используют один external executor и один
+case `cli.version`.
+
+## Windows VM matrix
+
+```bash
+AVELRA_WINDOWS_PROVIDER=/path/provider-cli-version.sh VM_SNAPSHOT_DIR=/path/vm-snapshots ./tests/run-windows-vms.sh
+```
+
+Providers: `vm-windows-10-22h2`, `vm-windows-11-26h2`. Один external executor,
+один case `cli.version`.

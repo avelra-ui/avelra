@@ -1,0 +1,5 @@
+schema_version: 1
+id: linux-vm
+levels: [contract]
+targets: [sdk]
+techniques: [functional, negative, boundary, regression]
