@@ -83,7 +83,7 @@
         "enum": [
           "linux-x64",
           "windows-x64",
-          "macos-arm64", "macos-x64",
+          "macos-arm64",
           "macos-x64"
         ]
       }
