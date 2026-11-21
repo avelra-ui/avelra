@@ -8,11 +8,13 @@
 ```text
 tests/
 ├── catalog/
-│   ├── catalog.yaml       единственный перечень кейсов
-│   ├── case.schema.json   схема кейса
-│   ├── providers/         описания провайдеров
-│   ├── runners/           реализации действий
-│   └── fixtures/          данные и подготовка
+│   ├── catalog.yaml          единственный перечень кейсов
+│   ├── case.schema.json      схема кейса
+│   ├── provider.schema.json  схема провайдера
+│   ├── run-plan.schema.json  схема запуска
+│   ├── providers/            описания провайдеров
+│   ├── runners/              реализации действий
+│   └── fixtures/             входные данные
 ├── component/
 ├── integration/
 ├── e2e/
@@ -22,9 +24,8 @@ tests/
 
 ## Case
 
-Кейс описывает поведение и требования, но не инфраструктуру.
-
 ```yaml
+schema_version: 1
 id: cli.version
 title: CLI prints version
 level: contract
@@ -36,36 +37,40 @@ platforms: [linux-x64, windows-x64]
 requires: [cli-binary]
 runner: cli.command
 fixture: null
+timeout_s: 30
 steps:
   - run: avelra --version
 expected: exit code 0 and one version line
 assertions:
-  - type: exit_code
+  - id: exit
+    type: exit_code
     equals: 0
-  - type: stdout
+  - id: version
+    type: stdout
     matches: "^avelra [0-9]+\\.[0-9]+\\.[0-9]+$"
 ```
 
 В кейсе запрещены:
 
 ```text
-environment, adapter, ci, vm, vds, real-machine
+environment, adapter, ci, vm, vds, real-machine, host
 ```
 
 ## Level
-
-Level — масштаб системы под тестом. Один кейс имеет один level.
 
 ```text
 component    один модуль в процессе; OS/сеть/процессы/UI подменены
 contract     граница компонентов/процессов/форматов
 integration  реальные компоненты + OS/пакет/сервис; без UI
-e2e          собранное приложение + реальный WebView + desktop
+e2e          source-built start-app + реальный WebView + desktop
 acceptance   released/installed artifact + пользовательский сценарий
 ```
 
-Выбирается наивысший level, который требует проверяемый SUT. Если нужны
-assertions разных уровней, это разные кейсы.
+Правило выбора:
+
+- `e2e` использует source-built start-app;
+- `acceptance` использует released/installed artifact;
+- assertions разных уровней — разные кейсы.
 
 ## Target и aspect
 
@@ -74,10 +79,8 @@ target  sdk | runtime | start-app | installer | supply
 aspect  behavior | presentation | diagnostics | security | compatibility
 ```
 
+`start-app` — единственное приложение, которое проверяет модель.
 `presentation` — aspect start-app, не level.
-
-`start-app` — единственное приложение, которое проверяет модель. Других
-приложений в тестовой системе нет.
 
 ## Technique
 
@@ -88,72 +91,126 @@ negative    недопустимый ввод или состояние
 regression  воспроизведение ранее сломанного поведения
 ```
 
+У кейса один основной technique.
+
 ## Condition
 
 ```text
-normal              без инъекций; required capabilities присутствуют
-missing-dependency  зависимость отсутствует; expected — ошибка
-no-display          desktop session отсутствует; expected — ошибка
-unsupported-os      ОС вне support matrix; expected — отказ
+normal
+  setup: без инъекций; required capabilities есть
+  expected: штатное поведение
+
+missing-dependency
+  setup: зависимость отсутствует
+  expected: ошибка; не hang и не success
+  requires: dependency-removal
+
+no-display
+  setup: desktop session отсутствует
+  expected: контролируемая ошибка; не hang
+  requires: headless
 ```
 
-Condition меняет setup/expected, но не является средой.
+Порядок: provision → condition setup → fixture → runner.
+Если provider не умеет condition — `skip`.
 
 ## Platform, requires, provider
 
 ```text
 platform  linux-x64 | windows-x64 | macos-arm64
-requires  cli-binary, start-app-artifact, desktop-session, browser, webkitgtk-4.1, ...
+requires  cli-binary, start-app-artifact, desktop-session, browser,
+          webkitgtk-4.1, installer, protocol-endpoint, headless,
+          dependency-removal, ...
 ```
 
-Провайдер предоставляет capabilities:
+Провайдер:
 
 ```yaml
+schema_version: 1
 id: local-vm-ubuntu-22.04
-platform: linux-x64
+platforms: [linux-x64]
 capabilities:
   - cli-binary
-  - guest-os
   - desktop-session
+  - webkitgtk-4.1
 ```
 
 Провайдерами могут быть `gh-runner`, `local-vm`, `vds`, `real-machine`.
 CI, ручной запуск и release являются schedulers, а не свойствами кейса.
-
 Нет required capability → `skip` с причиной.
 
-## Assertions
+## Runner и assertions
 
-```text
-exit_code, stdout, stderr, file_exists, file_absent,
-json, http_status, dom_text, dom_visible, window_title, browser_url
+Runner выполняет действие и возвращает observation, но **не выставляет
+pass/fail**.
+
+```json
+{
+  "exit_code": 0,
+  "stdout": "avelra 0.4.2\n",
+  "stderr": "",
+  "files": {},
+  "http": {},
+  "dom": {},
+  "window": {},
+  "browser": {}
+}
 ```
 
-Case status определяется assertions, а не наличием вывода в логе.
+Assertions проверяет executor:
+
+```text
+exit_code
+stdout / stderr: equals | contains | matches
+file_exists / file_absent
+json: path + equals
+http_status
+dom_text / dom_visible
+window_title
+browser_url
+```
+
+`stdout.equals` — точное UTF-8 сравнение. `stdout.matches` — POSIX ERE по
+UTF-8 после удаления одного завершающего `\n`.
 
 ## Result
 
 ```json
 {
+  "schema_version": 1,
   "case": "cli.version",
   "status": "pass",
   "reason": null,
   "provider": "gh-runner",
   "platform": "linux-x64",
+  "duration_s": 1.2,
   "assertions": [
-    {"type": "exit_code", "status": "pass"},
-    {"type": "stdout", "status": "pass"}
-  ]
+    {"id": "exit", "type": "exit_code", "status": "pass"},
+    {"id": "version", "type": "stdout", "status": "pass"}
+  ],
+  "artifacts": []
 }
 ```
 
 `skip` всегда имеет причину. `fail` содержит провалившиеся assertions.
 
+## Run plan
+
+```yaml
+schema_version: 1
+scheduler: ci
+runs:
+  - case: cli.version
+    provider: gh-runner
+```
+
+Scheduler выбирает provider по platform, requires и condition. Если подходящих
+несколько, run plan указывает конкретный; если нет — `skip`.
+
 ## Fixtures
 
-Fixture — версионированные входные данные или подготовка. Fixture не знает
-про golden, VM, CI или конкретный provider и применяется к workspace, который
-предоставил provider.
+Fixture — входные данные, применяемые к workspace provider'а. Fixture не знает
+про golden, VM, CI, VDS или provider.
 
-Изоляцию, одноразовость и cleanup обеспечивает provider. Для start-app/e2e
-используется prebuilt artifact; `init`/`build` внутри кейса запрещены.
+Provider обеспечивает изоляцию, одноразовость и cleanup. Fixture не выполняет
+`init`/`build`; для start-app/e2e используется prebuilt artifact.
