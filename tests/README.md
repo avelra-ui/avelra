@@ -16,30 +16,76 @@ tests/run_tests.sh   единая точка входа
 - CI и VM используют один каталог;
 - старые имена, inventory и списки тестов не переносятся;
 - `tests-deprecated/` не подключается к CI.
-## Model baseline v1 (draft)
+## Модель кейса
 
-Кейс описывает поведение и требования, но не инфраструктуру.
+Кейс описывает поведение и требования, но не инфраструктуру. В кейсе нет
+`ci`, `vm`, `vds`, `real-machine`, `environment` или `adapter`.
 
-```text
-id / title
-level / target / aspect
-technique / condition
-platforms
-requires
-runner
-```
+### Level
 
-В кейсе нет `ci`, `vm`, `vds`, `real-machine`, `adapter` или `environment`.
+Уровень — масштаб системы под тестом. Один кейс — один уровень.
 
 ```text
-requires:  cli-binary, desktop-session, browser, webkitgtk-4.1, ...
-provider:  gh-runner | local-vm | vds | real-machine
+component    один модуль в процессе; OS/сеть/процессы/UI подменены
+contract     граница компонентов/процессов/форматов; exit code, протокол
+integration  реальные компоненты + OS/пакет/сервис; без UI
+e2e          собранное приложение + реальный WebView + desktop
+acceptance   released/installed artifact + пользовательский сценарий
 ```
 
-Provider — внешняя конфигурация; он предоставляет capabilities. CI, ручной
-запуск и release — schedulers, а не свойства теста.
+Выбирается наивысший уровень, который требует проверяемый SUT. Если нужны
+assertions разных уровней — это разные кейсы.
 
-Condition (`normal`, `missing-dependency`, `no-display`, `unsupported-os`)
-меняет setup/expected, но не является средой.
+### Target / aspect
 
-Открытые вопросы ведутся в приватной developer-документации.
+```text
+target  sdk | runtime | app | installer | supply
+aspect  behavior | presentation | diagnostics | security | compatibility
+```
+
+### Technique
+
+```text
+functional  штатный сценарий
+boundary    граница диапазона/размера/версии
+negative    недопустимый ввод или состояние
+regression  воспроизведение ранее сломанного поведения
+```
+
+### Condition
+
+```text
+normal              без инъекций; required capabilities есть
+missing-dependency  зависимость отсутствует; expected — ошибка
+no-display          desktop session отсутствует; expected — ошибка
+unsupported-os      ОС вне support matrix; expected — отказ
+```
+
+Condition меняет setup/expected, но не является средой.
+
+### Platform, requires, provider
+
+```text
+platform  linux-x64 | windows-x64 | macos-arm64
+requires  cli-binary, desktop-session, browser, webkitgtk-4.1, ...
+```
+
+Провайдер (`gh-runner`, `local-vm`, `vds`, `real-machine`) — внешняя
+конфигурация, которая предоставляет capabilities. CI, ручной запуск и release
+являются schedulers, а не свойствами кейса.
+
+Нет required capability → `skip` с причиной.
+
+### Пример
+
+```yaml
+id: cli.version
+level: contract
+target: sdk
+aspect: behavior
+technique: functional
+condition: normal
+platforms: [linux-x64, windows-x64]
+requires: [cli-binary]
+runner: cli.command
+```
