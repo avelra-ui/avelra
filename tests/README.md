@@ -3,6 +3,8 @@
 Тестовая система Avelra. Реализация пишется в `tests/`; `tests-deprecated/`
 содержит старый набор только как baseline и не подключается к CI.
 
+## Структура
+
 ```text
 tests/
 ├── catalog/
