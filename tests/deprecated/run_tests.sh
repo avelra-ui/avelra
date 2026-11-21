@@ -45,6 +45,9 @@ compile_test() {
 run_test() {
   local name="$1"
   compile_test "$name" "tests/deprecated/$name.nim"
+  if [ "${AVELRA_BUILD_ONLY:-0}" = "1" ]; then
+    return 0
+  fi
   "$TEST_BIN/$name"
 }
 
