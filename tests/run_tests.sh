@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PLAN="${1:-$ROOT/tests/catalog/run-plans/local.yaml}"
-exec python3 "$ROOT/tests/catalog/run-case.py" --run-plan "$PLAN"
+if [ "$#" -eq 0 ]; then
+  set -- --run-plan "$ROOT/tests/catalog/run-plans/host.yaml"
+fi
+exec python3 "$ROOT/tests/catalog/run-case.py" "$@"

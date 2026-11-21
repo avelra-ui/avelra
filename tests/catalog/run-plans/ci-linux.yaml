@@ -1,5 +1,0 @@
-schema_version: 1
-scheduler: ci
-runs:
-- case: cli.version
-  provider: ci-linux-x64

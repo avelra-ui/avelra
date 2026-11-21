@@ -21,15 +21,22 @@ def load(path: Path) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--case")
-    parser.add_argument("--run-plan", required=True)
+    parser.add_argument("--run-plan")
+    parser.add_argument("--provider")
     args = parser.parse_args()
     catalog = load(ROOT / "catalog.yaml")
-    plan = load(Path(args.run_plan))
-    case_id = args.case or (plan["runs"][0]["case"] if plan.get("runs") else None)
+    if args.provider:
+        case_id = args.case or catalog["cases"][0]["id"]
+        run = {"case": case_id, "provider": args.provider}
+    elif args.run_plan:
+        plan = load(Path(args.run_plan))
+        case_id = args.case or (plan["runs"][0]["case"] if plan.get("runs") else None)
+        run = next((r for r in plan["runs"] if r["case"] == case_id), None)
+    else:
+        raise SystemExit("either --provider or --run-plan is required")
     case = next((c for c in catalog["cases"] if c["id"] == case_id), None)
     if case is None:
         raise SystemExit(f"unknown case: {case_id}")
-    run = next((r for r in plan["runs"] if r["case"] == case_id), None)
     if run is None:
         raise SystemExit(f"no run for {case_id}")
     provider = load(ROOT / "providers" / f"{run['provider']}.yaml")
