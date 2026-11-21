@@ -125,7 +125,7 @@ no-display
 ## Platform, requires, provider
 
 ```text
-platform  linux-x64 | windows-x64 | macos-arm64
+platform  linux-x64 | windows-x64 | macos-x64 | macos-arm64
 requires  cli-binary, start-app-artifact, desktop-session, browser,
           webkitgtk-4.1, installer, protocol-endpoint, headless,
           dependency-removal, ...

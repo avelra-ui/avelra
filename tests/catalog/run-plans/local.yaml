@@ -1,5 +1,5 @@
 schema_version: 1
 scheduler: manual
 runs:
-  - case: cli.version
-    provider: local
+- case: cli.version
+  provider: host-linux-x64

@@ -5,187 +5,558 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version", "id", "title", "level", "target", "aspect",
-    "technique", "condition", "platforms", "requires", "runner",
-    "timeout_s", "steps", "expected", "assertions"
+    "schema_version",
+    "id",
+    "title",
+    "level",
+    "target",
+    "aspect",
+    "technique",
+    "condition",
+    "platforms",
+    "requires",
+    "runner",
+    "timeout_s",
+    "steps",
+    "expected",
+    "assertions"
   ],
   "properties": {
-    "schema_version": {"const": 1},
-    "id": {"type": "string", "pattern": "^[a-z][a-z0-9.-]+$"},
-    "title": {"type": "string", "minLength": 1},
-    "level": {"enum": ["component", "contract", "integration", "e2e", "acceptance"]},
-    "target": {"enum": ["sdk", "runtime", "start-app", "installer", "supply"]},
-    "aspect": {"enum": ["behavior", "presentation", "diagnostics", "security", "compatibility"]},
-    "technique": {"enum": ["functional", "boundary", "negative", "regression"]},
-    "condition": {"enum": ["normal", "missing-dependency", "no-display"]},
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9.-]+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "level": {
+      "enum": [
+        "component",
+        "contract",
+        "integration",
+        "e2e",
+        "acceptance"
+      ]
+    },
+    "target": {
+      "enum": [
+        "sdk",
+        "runtime",
+        "start-app",
+        "installer",
+        "supply"
+      ]
+    },
+    "aspect": {
+      "enum": [
+        "behavior",
+        "presentation",
+        "diagnostics",
+        "security",
+        "compatibility"
+      ]
+    },
+    "technique": {
+      "enum": [
+        "functional",
+        "boundary",
+        "negative",
+        "regression"
+      ]
+    },
+    "condition": {
+      "enum": [
+        "normal",
+        "missing-dependency",
+        "no-display"
+      ]
+    },
     "platforms": {
-      "type": "array", "minItems": 1, "uniqueItems": true,
-      "items": {"enum": ["linux-x64", "windows-x64", "macos-arm64"]}
-    },
-    "requires": {
-      "type": "array", "uniqueItems": true,
-      "items": {"enum": [
-        "cli-binary", "start-app-artifact", "release-artifact",
-        "desktop-session", "headless", "browser", "webkitgtk-4.1",
-        "webview2", "installer", "protocol-endpoint", "package-manager", "root", "temp-fs",
-        "dependency-removal"
-      ]}
-    },
-    "runner": {"type": "string", "pattern": "^[a-z][a-z0-9.-]+$"},
-    "fixture": {"type": ["string", "null"]},
-    "timeout_s": {"type": "integer", "minimum": 1, "maximum": 3600},
-    "steps": {
-      "type": "array", "minItems": 1,
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
       "items": {
-        "type": "object", "additionalProperties": false,
-        "required": ["run"],
-        "properties": {"run": {"type": "string", "minLength": 1}}
+        "enum": [
+          "linux-x64",
+          "windows-x64",
+          "macos-arm64", "macos-x64",
+          "macos-x64"
+        ]
       }
     },
-    "expected": {"type": "string", "minLength": 1},
+    "requires": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "cli-binary",
+          "start-app-artifact",
+          "release-artifact",
+          "desktop-session",
+          "headless",
+          "browser",
+          "webkitgtk-4.1",
+          "webview2",
+          "installer",
+          "protocol-endpoint",
+          "package-manager",
+          "root",
+          "temp-fs",
+          "dependency-removal"
+        ]
+      }
+    },
+    "runner": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9.-]+$"
+    },
+    "fixture": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timeout_s": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "run"
+        ],
+        "properties": {
+          "run": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "expected": {
+      "type": "string",
+      "minLength": 1
+    },
     "assertions": {
-      "type": "array", "minItems": 1,
-      "items": {"$ref": "#/$defs/assertion"}
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/assertion"
+      }
     }
   },
   "$defs": {
     "assertionBase": {
       "type": "object",
-      "required": ["id", "type"],
+      "required": [
+        "id",
+        "type"
+      ],
       "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "type": {"type": "string"}
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string"
+        }
       }
     },
     "assertion": {
       "oneOf": [
-        {"$ref": "#/$defs/exitCode"},
-        {"$ref": "#/$defs/stdout"},
-        {"$ref": "#/$defs/stderr"},
-        {"$ref": "#/$defs/fileExists"},
-        {"$ref": "#/$defs/fileAbsent"},
-        {"$ref": "#/$defs/jsonAssertion"},
-        {"$ref": "#/$defs/httpStatus"},
-        {"$ref": "#/$defs/domText"},
-        {"$ref": "#/$defs/domVisible"},
-        {"$ref": "#/$defs/windowTitle"},
-        {"$ref": "#/$defs/browserUrl"}
+        {
+          "$ref": "#/$defs/exitCode"
+        },
+        {
+          "$ref": "#/$defs/stdout"
+        },
+        {
+          "$ref": "#/$defs/stderr"
+        },
+        {
+          "$ref": "#/$defs/fileExists"
+        },
+        {
+          "$ref": "#/$defs/fileAbsent"
+        },
+        {
+          "$ref": "#/$defs/jsonAssertion"
+        },
+        {
+          "$ref": "#/$defs/httpStatus"
+        },
+        {
+          "$ref": "#/$defs/domText"
+        },
+        {
+          "$ref": "#/$defs/domVisible"
+        },
+        {
+          "$ref": "#/$defs/windowTitle"
+        },
+        {
+          "$ref": "#/$defs/browserUrl"
+        }
       ]
     },
     "exitCode": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "exit_code"},
-          "equals": {"type": "integer"}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "required": ["id", "type", "equals"]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "exit_code"
+            },
+            "equals": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "equals"
+          ]
+        }
+      ]
     },
     "stdout": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "stdout"},
-          "equals": {"type": "string"}, "contains": {"type": "string"},
-          "matches": {"type": "string"}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "oneOf": [{"required": ["equals"]}, {"required": ["contains"]}, {"required": ["matches"]}]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "stdout"
+            },
+            "equals": {
+              "type": "string"
+            },
+            "contains": {
+              "type": "string"
+            },
+            "matches": {
+              "type": "string"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "equals"
+              ]
+            },
+            {
+              "required": [
+                "contains"
+              ]
+            },
+            {
+              "required": [
+                "matches"
+              ]
+            }
+          ]
+        }
+      ]
     },
     "stderr": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "stderr"},
-          "equals": {"type": "string"}, "contains": {"type": "string"},
-          "matches": {"type": "string"}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "oneOf": [{"required": ["equals"]}, {"required": ["contains"]}, {"required": ["matches"]}]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "stderr"
+            },
+            "equals": {
+              "type": "string"
+            },
+            "contains": {
+              "type": "string"
+            },
+            "matches": {
+              "type": "string"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "equals"
+              ]
+            },
+            {
+              "required": [
+                "contains"
+              ]
+            },
+            {
+              "required": [
+                "matches"
+              ]
+            }
+          ]
+        }
+      ]
     },
     "fileExists": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "file_exists"},
-          "path": {"type": "string", "minLength": 1}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "required": ["id", "type", "path"]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "file_exists"
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "path"
+          ]
+        }
+      ]
     },
     "fileAbsent": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "file_absent"},
-          "path": {"type": "string", "minLength": 1}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "required": ["id", "type", "path"]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "file_absent"
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "path"
+          ]
+        }
+      ]
     },
     "jsonAssertion": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "json"},
-          "path": {"type": "string", "pattern": "^(/|$)"},
-          "equals": {}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "required": ["id", "type", "path", "equals"]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "json"
+            },
+            "path": {
+              "type": "string",
+              "pattern": "^(/|$)"
+            },
+            "equals": {}
+          },
+          "required": [
+            "id",
+            "type",
+            "path",
+            "equals"
+          ]
+        }
+      ]
     },
     "httpStatus": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "http_status"},
-          "equals": {"type": "integer", "minimum": 100, "maximum": 599}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "required": ["id", "type", "equals"]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "http_status"
+            },
+            "equals": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 599
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "equals"
+          ]
+        }
+      ]
     },
     "domText": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "dom_text"},
-          "selector": {"type": "string", "minLength": 1},
-          "contains": {"type": "string"}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "required": ["id", "type", "selector", "contains"]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "dom_text"
+            },
+            "selector": {
+              "type": "string",
+              "minLength": 1
+            },
+            "contains": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "selector",
+            "contains"
+          ]
+        }
+      ]
     },
     "domVisible": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "dom_visible"},
-          "selector": {"type": "string", "minLength": 1},
-          "equals": {"type": "boolean"}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "required": ["id", "type", "selector", "equals"]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "dom_visible"
+            },
+            "selector": {
+              "type": "string",
+              "minLength": 1
+            },
+            "equals": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "selector",
+            "equals"
+          ]
+        }
+      ]
     },
     "windowTitle": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "window_title"},
-          "contains": {"type": "string"}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "required": ["id", "type", "contains"]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "window_title"
+            },
+            "contains": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "contains"
+          ]
+        }
+      ]
     },
     "browserUrl": {
-      "allOf": [{"$ref": "#/$defs/assertionBase"}, {
-        "type": "object", "additionalProperties": false,
-        "properties": {
-          "id": {"type": "string"}, "type": {"const": "browser_url"},
-          "matches": {"type": "string"}
+      "allOf": [
+        {
+          "$ref": "#/$defs/assertionBase"
         },
-        "required": ["id", "type", "matches"]
-      }]
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "const": "browser_url"
+            },
+            "matches": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "matches"
+          ]
+        }
+      ]
     }
   }
 }

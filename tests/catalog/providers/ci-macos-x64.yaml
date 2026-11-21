@@ -1,0 +1,8 @@
+schema_version: 1
+id: ci-macos-x64
+platforms:
+- macos-x64
+capabilities:
+- cli-binary
+artifacts:
+  cli-binary: build/bin/avelra

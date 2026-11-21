@@ -20,26 +20,27 @@ def load(path: Path) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--case", required=True)
+    parser.add_argument("--case")
     parser.add_argument("--run-plan", required=True)
     args = parser.parse_args()
     catalog = load(ROOT / "catalog.yaml")
     plan = load(Path(args.run_plan))
-    case = next((c for c in catalog["cases"] if c["id"] == args.case), None)
+    case_id = args.case or (plan["runs"][0]["case"] if plan.get("runs") else None)
+    case = next((c for c in catalog["cases"] if c["id"] == case_id), None)
     if case is None:
-        raise SystemExit(f"unknown case: {args.case}")
-    run = next((r for r in plan["runs"] if r["case"] == args.case), None)
+        raise SystemExit(f"unknown case: {case_id}")
+    run = next((r for r in plan["runs"] if r["case"] == case_id), None)
     if run is None:
-        raise SystemExit(f"no run for {args.case}")
+        raise SystemExit(f"no run for {case_id}")
     provider = load(ROOT / "providers" / f"{run['provider']}.yaml")
-    platform = case["platforms"][0]
-    if platform not in provider["platforms"]:
-        print(json.dumps({"schema_version": 1, "case": args.case, "status": "skip",
-                          "reason": f"provider lacks platform {platform}"}))
+    platform = provider["platforms"][0]
+    if platform not in case["platforms"]:
+        print(json.dumps({"schema_version": 1, "case": case_id, "status": "skip",
+                          "reason": f"provider platform {platform} not in case platforms"}))
         return 0
     missing = sorted(set(case["requires"]) - set(provider["capabilities"]))
     if missing:
-        print(json.dumps({"schema_version": 1, "case": args.case, "status": "skip",
+        print(json.dumps({"schema_version": 1, "case": case_id, "status": "skip",
                           "reason": "provider lacks capabilities: " + ", ".join(missing)}))
         return 0
     if case["condition"] != "normal":
@@ -47,12 +48,12 @@ def main() -> int:
     artifacts = provider.get("artifacts", {})
     for capability in case["requires"]:
         if capability not in artifacts:
-            print(json.dumps({"schema_version": 1, "case": args.case, "status": "error",
+            print(json.dumps({"schema_version": 1, "case": case_id, "status": "error",
                               "reason": f"provider has no artifact for capability {capability}"}))
             return 1
         artifact = REPO / artifacts[capability]
         if not artifact.is_file():
-            print(json.dumps({"schema_version": 1, "case": args.case, "status": "error",
+            print(json.dumps({"schema_version": 1, "case": case_id, "status": "error",
                               "reason": f"artifact missing: {artifacts[capability]}"}))
             return 1
     runner = ROOT / "runners" / f"{case['runner']}.py"
@@ -89,7 +90,7 @@ def main() -> int:
         results.append({"id": assertion["id"], "type": kind,
                         "status": "pass" if ok else "fail", "actual": actual})
     status = "pass" if all(r["status"] == "pass" for r in results) else "fail"
-    result = {"schema_version": 1, "case": args.case, "status": status,
+    result = {"schema_version": 1, "case": case_id, "status": status,
               "reason": None if status == "pass" else "assertion failed",
               "provider": run["provider"], "platform": platform,
               "assertions": results}
