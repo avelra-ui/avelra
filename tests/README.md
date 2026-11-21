@@ -148,6 +148,9 @@ Case status определяется assertions, а не наличием выв
 
 ## Fixtures
 
-Fixture версионируется, применяется к одноразовому окружению и не мутирует
-golden. Для app/e2e используется prebuilt artifact; `init`/`build` внутри
-кейса запрещены.
+Fixture — версионированные входные данные или подготовка. Fixture не знает
+про golden, VM, CI или конкретный provider и применяется к workspace, который
+предоставил provider.
+
+Изоляцию, одноразовость и cleanup обеспечивает provider. Для app/e2e
+используется prebuilt artifact; `init`/`build` внутри кейса запрещены.
