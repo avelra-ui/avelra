@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-"$ROOT/tests/catalog/build-tests.sh"
-if [ "${AVELRA_BUILD_ONLY:-0}" = "1" ]; then exit 0; fi
-exec python3 "$ROOT/tests/catalog/run-ci.py" --all-inventory
+echo "new test suite is not implemented yet; see #95" >&2
+exit 1
