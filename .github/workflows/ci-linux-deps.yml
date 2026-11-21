@@ -31,10 +31,8 @@ jobs:
           ./scripts/build/linux.sh
           ./scripts/release/build.sh
 
-      - name: Run canonical catalog CI cases
-        run: |
-          AVELRA_BUILD_ONLY=1 ./tests/run_tests.sh
-          python3 tests/catalog/run-ci.py --all-inventory
+      - name: Run catalog tests
+        run: ./tests/run_tests.sh
 
       - name: Upload Linux release artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

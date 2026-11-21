@@ -1,0 +1,5 @@
+schema_version: 1
+scheduler: manual
+runs:
+  - case: cli.version
+    provider: local

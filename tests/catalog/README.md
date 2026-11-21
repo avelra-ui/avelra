@@ -1,12 +1,17 @@
 # Catalog
 
-Пустая точка старта новой тестовой системы.
+Единственный перечень тестовых кейсов.
 
 ```text
-catalog.yaml   cases: []
-profiles/      среды CI/VM
-runners/       реализации действий
-fixtures/      данные кейсов
+catalog.yaml       cases
+case.schema.json   схема кейса
+provider.schema.json
+run-plan.schema.json
+providers/         описания провайдеров
+run-plans/         выбранные case/provider
+runners/           реализации действий
+fixtures/          входные данные
 ```
 
-Никакие старые ID, inventory или smoke-скрипты сюда не переносятся.
+`run-case.py` исполняет один кейс: runner собирает observation, executor
+проверяет assertions.

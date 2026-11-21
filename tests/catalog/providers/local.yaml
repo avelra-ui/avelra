@@ -1,0 +1,5 @@
+schema_version: 1
+id: local
+platforms: [linux-x64]
+capabilities:
+  - cli-binary

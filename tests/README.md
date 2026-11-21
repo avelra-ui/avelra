@@ -13,13 +13,21 @@ tests/
 │   ├── provider.schema.json  схема провайдера
 │   ├── run-plan.schema.json  схема запуска
 │   ├── providers/            описания провайдеров
+│   ├── run-plans/            выбранные case/provider
 │   ├── runners/              реализации действий
+│   ├── run-case.py           executor
 │   └── fixtures/             входные данные
 ├── component/
 ├── integration/
 ├── e2e/
 ├── acceptance/
 └── run_tests.sh
+```
+
+Запуск:
+
+```bash
+./tests/run_tests.sh
 ```
 
 ## Case
