@@ -2,7 +2,7 @@
 # Exercise the transactional release tree and its artifacts.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/avelra-release-test.XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 

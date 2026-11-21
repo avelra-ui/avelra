@@ -1,0 +1,52 @@
+schema: 1
+id: windows-x64
+os: windows
+status: active
+catalog: catalog.yaml
+distros:
+- id: windows-11-26h2
+  os: Windows 11 Pro 26300
+  tier: 1
+  golden: golden-windows-11-26h2.qcow2
+  nvram: golden-windows-11-26h2_VARS.fd
+  ssh_alias: avelra-windows-11-26h2
+- id: windows-10-22h2
+  os: Windows 10 Pro 22H2 19045
+  tier: 1
+  golden: golden-windows-10-22h2.qcow2
+  nvram: golden-windows-10-22h2_VARS.fd
+  ssh_alias: avelra-windows-10-22h2
+runner:
+  transport: ssh
+  shell: bash
+  guest_shell: powershell
+  runners:
+    install.tar: windows/smoke-install.sh
+    install.nsis: windows/smoke-installer.sh
+    cli.doctor: windows/smoke-install.sh
+    cli.init: windows/smoke-install.sh
+    cli.build: windows/smoke-install.sh
+    app.launch: windows/smoke-app.sh
+    app.lifecycle: windows/smoke-app.sh
+    ui.inspector: windows/smoke-ui.sh
+    cli.help: windows/smoke-cli.sh
+    cli.pack: windows/smoke-cli.sh
+    app.icon: windows/smoke-icon.sh
+  tooling:
+  - openssh
+  - powershell
+  fixtures:
+    missing-webview2: windows/smoke-negative.sh
+    missing-vcpp: windows/smoke-negative.sh
+capabilities:
+- windows
+- desktop-session
+- browser
+- qemu-agent
+- guest
+environment: vm
+exclusions:
+  CLI-RUN-001: interactive cli.run runner is not implemented
+  APP-URL-001: stable Windows UIA/CDP browser fixture is not implemented
+  APP-URL-002: stable opener-failure fixture is not implemented
+  APP-URL-003: stable non-http UI fixture is not implemented
