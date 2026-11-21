@@ -16,24 +16,30 @@ tests/run_tests.sh   единая точка входа
 - CI и VM используют один каталог;
 - старые имена, inventory и списки тестов не переносятся;
 - `tests-deprecated/` не подключается к CI.
+## Model baseline v1 (draft)
 
-## Model baseline v0
-
-Поля кейса имеют фиксированную семантику:
+Кейс описывает поведение и требования, но не инфраструктуру.
 
 ```text
-platform      linux-x64 | windows-x64 | macos-arm64
-executions    явные platform+adapter комбинации
-adapter       ci | vm
-requires      capabilities, которые должен предоставить adapter
-condition     normal | missing-dependency | no-display | unsupported-os
-technique     functional | boundary | negative | regression
-level         component | contract | integration | e2e | acceptance
-target        sdk | runtime | app | installer | supply
-aspect        behavior | presentation | diagnostics | security | compatibility
+id / title
+level / target / aspect
+technique / condition
+platforms
+requires
+runner
 ```
 
-`normal` — отсутствие инъекций и наличие required capabilities, а не гарантия
-успеха. Нет capability → `skip` с причиной.
+В кейсе нет `ci`, `vm`, `vds`, `real-machine`, `adapter` или `environment`.
 
-Открытые вопросы ведутся в developer-документации приватного репозитория.
+```text
+requires:  cli-binary, desktop-session, browser, webkitgtk-4.1, ...
+provider:  gh-runner | local-vm | vds | real-machine
+```
+
+Provider — внешняя конфигурация; он предоставляет capabilities. CI, ручной
+запуск и release — schedulers, а не свойства теста.
+
+Condition (`normal`, `missing-dependency`, `no-display`, `unsupported-os`)
+меняет setup/expected, но не является средой.
+
+Открытые вопросы ведутся в приватной developer-документации.
