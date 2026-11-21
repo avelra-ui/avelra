@@ -1,0 +1,72 @@
+schema: 1
+id: linux-x64
+os: linux
+status: active
+catalog: catalog.yaml
+distros:
+- id: ubuntu-22.04
+  os: Ubuntu 22.04.5 LTS
+  tier: 1
+  golden: golden-ubuntu-22.04.qcow2
+  ssh_alias: avelra-ubuntu-22.04
+- id: ubuntu-24.04
+  os: Ubuntu 24.04.5 LTS
+  tier: 1
+  golden: golden-ubuntu-24.04.qcow2
+  ssh_alias: avelra-ubuntu-24.04
+- id: ubuntu-26.04
+  os: Ubuntu 26.04.1 LTS
+  tier: 1
+  golden: golden-ubuntu-26.04.qcow2
+  ssh_alias: avelra-ubuntu-26.04
+- id: debian-12
+  os: Debian 12.12
+  tier: 1
+  golden: golden-debian-12.qcow2
+  ssh_alias: avelra-debian-12
+  nvram: golden-debian-12_VARS.fd
+- id: debian-13
+  os: Debian 13.7
+  tier: 1
+  golden: golden-debian-13.qcow2
+  ssh_alias: avelra-debian-13
+  nvram: golden-debian-13_VARS.fd
+runner:
+  transport: ssh
+  shell: bash
+  runners:
+    install.tar: smoke-install.sh
+    install.deb: smoke-install.sh
+    install.npm: smoke-npm.sh
+    cli.help: smoke-install.sh
+    cli.doctor: smoke-install.sh
+    cli.init: smoke-install.sh
+    cli.build: smoke-install.sh
+    app.launch: smoke-app.sh
+    app.url: smoke-openurl.sh
+    app.desktop: smoke-desktop.sh
+    app.lifecycle: smoke-app.sh
+    ui.inspector: smoke-ui.sh
+    cli.pack: smoke-install.sh
+    cli.run: smoke-run.sh
+    release.artifact: smoke-install.sh
+  tooling:
+  - openssh
+  - bash
+  - websockets
+  fixtures:
+    missing-webkit: smoke-negative.sh
+    missing-display: smoke-negative-display.sh
+    readonly-client: smoke-negative-readonly.sh
+capabilities:
+- linux
+- desktop-session
+- browser
+- root
+- qemu-agent
+- guest
+environment: vm
+exclusions:
+  EXT-001: extension fixture/runner not implemented; requires extension-host test fixture
+  EXT-002: extension fixture/runner not implemented; requires timeout/crash fixture
+  NEG-003: static server selects a random port; case must be redesigned before automation
