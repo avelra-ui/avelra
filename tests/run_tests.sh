@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Compatibility shim while tests/deprecated is replaced by tests/catalog.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-exec "$ROOT/tests/deprecated/run_tests.sh" "$@"
+"$ROOT/tests/catalog/build-tests.sh"
+if [ "${AVELRA_BUILD_ONLY:-0}" = "1" ]; then exit 0; fi
+exec python3 "$ROOT/tests/catalog/run-ci.py" --all-inventory

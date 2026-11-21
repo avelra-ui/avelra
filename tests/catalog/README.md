@@ -1,6 +1,7 @@
 # Canonical test catalog
 
-Это новый canonical каталог тестовой системы. Migration in progress.
+Это canonical каталог тестовой системы. Component test implementations
+перенесены в `tests/catalog/tests/component/`; `tests/deprecated/` удалён.
 
 ```text
 catalog.yaml          case metadata
@@ -15,3 +16,9 @@ report-parity.py
 Старые тесты находятся в `tests/deprecated/` и пока остаются рабочим CI
 fallback. CI execution через этот каталог ещё не подключён; перенос завершён
 только структурно.
+
+## Executable
+
+`tests/run_tests.sh` собирает binaries из `tests/catalog/tests/` и запускает
+`run-ci.py --all-inventory`. `AVELRA_BUILD_ONLY=1` оставляет только сборку для
+CI, где исполнение идёт отдельным catalog step.
