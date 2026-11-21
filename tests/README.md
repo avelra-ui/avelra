@@ -70,11 +70,14 @@ assertions разных уровней, это разные кейсы.
 ## Target и aspect
 
 ```text
-target  sdk | runtime | app | installer | supply
+target  sdk | runtime | start-app | installer | supply
 aspect  behavior | presentation | diagnostics | security | compatibility
 ```
 
-`presentation` — aspect приложения, не level.
+`presentation` — aspect start-app, не level.
+
+`start-app` — единственное приложение, которое проверяет модель. Других
+приложений в тестовой системе нет.
 
 ## Technique
 
@@ -100,7 +103,7 @@ Condition меняет setup/expected, но не является средой.
 
 ```text
 platform  linux-x64 | windows-x64 | macos-arm64
-requires  cli-binary, app-artifact, desktop-session, browser, webkitgtk-4.1, ...
+requires  cli-binary, start-app-artifact, desktop-session, browser, webkitgtk-4.1, ...
 ```
 
 Провайдер предоставляет capabilities:
@@ -152,5 +155,5 @@ Fixture — версионированные входные данные или 
 про golden, VM, CI или конкретный provider и применяется к workspace, который
 предоставил provider.
 
-Изоляцию, одноразовость и cleanup обеспечивает provider. Для app/e2e
+Изоляцию, одноразовость и cleanup обеспечивает provider. Для start-app/e2e
 используется prebuilt artifact; `init`/`build` внутри кейса запрещены.
