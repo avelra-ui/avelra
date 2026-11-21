@@ -26,7 +26,7 @@ type
     webKitPresent*: bool
 
 const
-  MinWindowsVersion* = "10.0.17763"   # Windows 10 1809
+  MinWindowsVersion* = "10.0.19044"   # Windows 10 22H2 (LTSC 2021)
   MinWebView2Version* = "100.0.0"
   MinMacosVersion* = "12.0"
 
@@ -81,7 +81,7 @@ proc latestVersionInDirectories*(root: string): string =
 proc evaluateWindows*(snapshot: PlatformSnapshot): seq[CheckResult] =
   result.add checkVersion(
     "Windows", snapshot.osVersion, MinWindowsVersion,
-    "update Windows to 10.0.17763 or newer"
+    "update Windows to 10.0.19044 or newer"
   )
   result.add checkVersion(
     "WebView2 Runtime", snapshot.webView2Version, MinWebView2Version,
