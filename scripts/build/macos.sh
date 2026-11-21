@@ -21,8 +21,8 @@ export BUILD_DIR LIBEXEC_DIR AVELRA_MACOS_ARCH="$ARCH"
 mkdir -p "$BIN_DIR" "$LIBEXEC_DIR" "$BUILD_DIR/nimcache-macos-$ARCH"
 VERSION="$(cat "$ROOT/VERSION")"
 COMMON=(c -d:release --opt:size --mm:orc -d:strip --hints:off
-  --os:macosx --cpu:$CPU --path:src "-d:avelraVersion=$VERSION"
-  --passC:-arch --passC:$ARCH --passL:-arch --passL:$ARCH)
+  "--os:macosx" "--cpu:$CPU" --path:src "-d:avelraVersion=$VERSION"
+  "--passC:-arch" "--passC:$ARCH" "--passL:-arch" "--passL:$ARCH")
 if [[ ! -f "$LIB" ]]; then
   "$ROOT/scripts/webview/macos.sh"
 fi
@@ -33,11 +33,11 @@ fi
 
 nim c -d:release --opt:size --mm:orc -d:strip --hints:off \
   --threads:on \
-  --os:macosx --cpu:$CPU \
+  "--os:macosx" "--cpu:$CPU" \
   --path:src \
   --nimcache:"$BUILD_DIR/nimcache-macos-$ARCH" \
   --out:"$LIBEXEC_DIR/avelra-runtime" \
-  --passC:-arch --passC:$ARCH --passL:-arch --passL:$ARCH \
+  "--passC:-arch" "--passC:$ARCH" "--passL:-arch" "--passL:$ARCH" \
   --passL:"$LIB" \
   --passL:"-framework WebKit" \
   --passL:"-framework Cocoa" \
