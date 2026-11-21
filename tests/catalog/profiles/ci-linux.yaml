@@ -13,8 +13,8 @@ runner:
   transport: local
   shell: bash
   runners:
-    ci.nimtest: ../ci/run-nimtest.sh
-    release.artifact: ../ci/run-release.sh
-    cli.help: ../ci/run-nimtest.sh
-    install.npm: ../ci/run-npm.sh
+    ci.nimtest: ci/run-nimtest.sh
+    release.artifact: ci/run-release.sh
+    cli.help: ci/run-nimtest.sh
+    install.npm: ci/run-npm.sh
   fixtures: {}
