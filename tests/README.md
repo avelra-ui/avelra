@@ -141,7 +141,12 @@ capabilities:
   - cli-binary
   - desktop-session
   - webkitgtk-4.1
+artifacts:
+  cli-binary: build/bin/avelra
 ```
+
+`artifacts` связывает capability с конкретным артефактом. Если provider заявил
+capability, но artifact отсутствует — это `error`, а не `skip`.
 
 Провайдерами могут быть `gh-runner`, `local-vm`, `vds`, `real-machine`.
 CI, ручной запуск и release являются schedulers, а не свойствами кейса.
@@ -200,7 +205,13 @@ UTF-8 после удаления одного завершающего `\n`.
 }
 ```
 
-`skip` всегда имеет причину. `fail` содержит провалившиеся assertions.
+```text
+skip  среда не предоставляет capability/condition
+error provider заявил capability, но artifact/runner/setup отсутствует
+fail  assertions не прошли
+```
+
+`skip` и `error` всегда имеют причину. `fail` содержит провалившиеся assertions.
 
 ## Run plan
 

@@ -1,5 +1,8 @@
 schema_version: 1
 id: local
-platforms: [linux-x64]
+platforms:
+- linux-x64
 capabilities:
-  - cli-binary
+- cli-binary
+artifacts:
+  cli-binary: build/bin/avelra

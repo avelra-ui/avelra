@@ -44,11 +44,23 @@ def main() -> int:
         return 0
     if case["condition"] != "normal":
         raise SystemExit(f"unsupported condition: {case['condition']}")
+    artifacts = provider.get("artifacts", {})
+    for capability in case["requires"]:
+        if capability not in artifacts:
+            print(json.dumps({"schema_version": 1, "case": args.case, "status": "error",
+                              "reason": f"provider has no artifact for capability {capability}"}))
+            return 1
+        artifact = REPO / artifacts[capability]
+        if not artifact.is_file():
+            print(json.dumps({"schema_version": 1, "case": args.case, "status": "error",
+                              "reason": f"artifact missing: {artifacts[capability]}"}))
+            return 1
     runner = ROOT / "runners" / f"{case['runner']}.py"
     if not runner.is_file():
         raise SystemExit(f"missing runner: {runner}")
     env = os.environ.copy()
-    env.setdefault("AVELRA_CLI", str(REPO / "build/bin/avelra"))
+    if "cli-binary" in artifacts:
+        env["AVELRA_CLI"] = str(REPO / artifacts["cli-binary"])
     proc = subprocess.run([sys.executable, str(runner)], cwd=REPO, env=env,
                           text=True, capture_output=True, timeout=case["timeout_s"])
     if proc.returncode != 0:
