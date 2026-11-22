@@ -80,6 +80,30 @@ npx avelra --version
 ```
 
 
+## Windows SDK preview
+
+The Windows SDK is distributed as a per-user NSIS installer for Windows 10
+22H2 and Windows 11. It does not require administrator rights.
+
+1. Download `avelra-sdk-<version>-windows-x64-setup.exe`.
+2. Run the installer and keep the default location:
+   ```text
+   %LOCALAPPDATA%\Avelra
+   ```
+3. Verify the CLI:
+   ```powershell
+   & "$env:LOCALAPPDATA\Avelra\bin\avelra.exe" --version
+   & "$env:LOCALAPPDATA\Avelra\bin\avelra.exe" doctor
+   ```
+
+The installer adds an **Avelra SDK** entry to Windows Settings → Apps. Use that
+entry, or `%LOCALAPPDATA%\Avelra\uninstall.exe`, to uninstall. Uninstall
+removes the SDK payload, the Start Menu shortcut, the Apps entry and the install
+directory.
+
+> The 0.4.2 public Windows build predates the Apps entry and full install-root
+> cleanup. This behavior is part of the next Windows SDK build.
+
 ## Verify the installation
 
 ```bash
