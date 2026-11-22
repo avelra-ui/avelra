@@ -39,10 +39,23 @@ Section "Avelra SDK" SecMain
   WriteUninstaller "`$INSTDIR\uninstall.exe"
   CreateDirectory "`$SMPROGRAMS\Avelra"
   CreateShortcut "`$SMPROGRAMS\Avelra\Avelra CLI.lnk" "`$INSTDIR\bin\avelra.exe"
+
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "DisplayName" "Avelra SDK"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "DisplayVersion" "$Version"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "Publisher" "Avelra"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "InstallLocation" "`$INSTDIR"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "UninstallString" '"`$INSTDIR\uninstall.exe"'
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "DisplayIcon" "`$INSTDIR\bin\avelra.exe"
+  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "NoModify" 1
+  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "NoRepair" 1
 SectionEnd
 
 Section "Uninstall"
+  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra"
+  SetOutPath "`$TEMP"
   RMDir /r "`$INSTDIR"
+  Delete "`$INSTDIR\uninstall.exe"
+  RMDir "`$INSTDIR"
   Delete "`$SMPROGRAMS\Avelra\Avelra CLI.lnk"
   RMDir "`$SMPROGRAMS\Avelra"
 SectionEnd
