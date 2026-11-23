@@ -9,7 +9,8 @@ cd "$ROOT"
 BUILD_DIR="${BUILD_DIR:-$ROOT/build}"
 ARCH="${AVELRA_MACOS_ARCH:-arm64}"
 case "$ARCH" in
-  arm64|x64) ;;
+  arm64) NIM_CPU=arm64; CLANG_ARCH=arm64 ;;
+  x64) NIM_CPU=amd64; CLANG_ARCH=x86_64 ;;
   *) echo "unsupported macOS arch: $ARCH" >&2; exit 2 ;;
 esac
 BIN_DIR="${BIN_DIR:-$BUILD_DIR/bin}"
@@ -20,8 +21,8 @@ export BUILD_DIR LIBEXEC_DIR
 mkdir -p "$BIN_DIR" "$LIBEXEC_DIR" "$BUILD_DIR/nimcache-macos-$ARCH"
 VERSION="$(cat "$ROOT/VERSION")"
 COMMON=(c -d:release --opt:size --mm:orc -d:strip --hints:off
-  --os:macosx --cpu:$ARCH --path:src "-d:avelraVersion=$VERSION"
-  --passC:-arch --passC:$ARCH --passL:-arch --passL:$ARCH)
+  "--os:macosx" "--cpu:$NIM_CPU" "--path:src" "-d:avelraVersion=$VERSION"
+  "--passC:-arch" "--passC:$CLANG_ARCH" "--passL:-arch" "--passL:$CLANG_ARCH")
 if [[ ! -f "$LIB" ]]; then
   "$ROOT/scripts/webview/macos.sh"
 fi
@@ -32,11 +33,11 @@ fi
 
 nim c -d:release --opt:size --mm:orc -d:strip --hints:off \
   --threads:on \
-  --os:macosx --cpu:$ARCH \
+  --os:macosx --cpu:$NIM_CPU \
   --path:src \
   --nimcache:"$BUILD_DIR/nimcache-macos-$ARCH" \
   --out:"$LIBEXEC_DIR/avelra-runtime" \
-  --passC:-arch --passC:$ARCH --passL:-arch --passL:$ARCH \
+  --passC:-arch --passC:$CLANG_ARCH --passL:-arch --passL:$CLANG_ARCH \
   --passL:"$LIB" \
   --passL:"-framework WebKit" \
   --passL:"-framework Cocoa" \

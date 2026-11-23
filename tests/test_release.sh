@@ -8,7 +8,7 @@ trap 'rm -rf "$TMP"' EXIT
 
 VERSION="$(cat "$ROOT/VERSION")"
 OUT="$TMP/releases"
-AVELRA_RELEASES_DIR="$OUT" SOURCE_DATE_EPOCH=1700000000 \
+AVELRA_RELEASES_DIR="$OUT" AVELRA_ARTIFACT_LABEL="$VERSION" SOURCE_DATE_EPOCH=1700000000 \
   "$ROOT/scripts/release/build.sh"
 
 REL="$OUT/$VERSION/linux-x64"
@@ -52,7 +52,7 @@ dpkg-deb -x "$REL/artifacts/avelra_${VERSION}_amd64.deb" "$TMP/deb"
 "$TMP/deb/usr/bin/avelra" --version | grep -q "avelra $VERSION"
 
 TREE_OUT="$TMP/tree-releases"
-AVELRA_RELEASES_DIR="$TREE_OUT" "$ROOT/scripts/release/build.sh" --tree >/dev/null
+AVELRA_RELEASES_DIR="$TREE_OUT" AVELRA_ARTIFACT_LABEL="$VERSION" "$ROOT/scripts/release/build.sh" --tree >/dev/null
 TREE_REL="$TREE_OUT/$VERSION/linux-x64"
 test -f "$TREE_REL/manifest.json"
 test -f "$TREE_REL/SHA256SUMS"

@@ -8,7 +8,8 @@ BUILD_DIR="${BUILD_DIR:-$ROOT/build}"
 SRC="$BUILD_DIR/webview-src"
 ARCH="${AVELRA_MACOS_ARCH:-arm64}"
 case "$ARCH" in
-  arm64|x64) ;;
+  arm64) CMAKE_ARCH=arm64 ;;
+  x64) CMAKE_ARCH=x86_64 ;;
   *) echo "unsupported macOS arch: $ARCH" >&2; exit 2 ;;
 esac
 BUILD="$SRC/build-macos-$ARCH"
@@ -25,7 +26,7 @@ fi
 
 cmake -S "$SRC" -B "$BUILD" -G Xcode \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_OSX_ARCHITECTURES=$ARCH \
+  -DCMAKE_OSX_ARCHITECTURES=$CMAKE_ARCH \
   -DWEBVIEW_BUILD=ON \
   -DWEBVIEW_BUILD_STATIC_LIBRARY=ON \
   -DWEBVIEW_ENABLE_CHECKS=OFF \
