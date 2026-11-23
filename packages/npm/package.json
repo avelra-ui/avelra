@@ -12,7 +12,6 @@
     "webkitgtk",
     "nim",
     "framework",
-    "sdk",
     "cli",
     "web-ui"
   ],

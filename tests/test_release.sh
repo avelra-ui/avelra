@@ -14,7 +14,7 @@ AVELRA_RELEASES_DIR="$OUT" SOURCE_DATE_EPOCH=1700000000 \
 REL="$OUT/$VERSION/linux-x64"
 test -f "$REL/manifest.json"
 test -f "$REL/SHA256SUMS"
-test -f "$REL/artifacts/avelra-sdk-$VERSION-linux-x64.tar.gz"
+test -f "$REL/artifacts/avelra-$VERSION-linux-x64.tar.gz"
 test -f "$REL/artifacts/avelra_${VERSION}_amd64.deb"
 test -L "$OUT/current"
 test ! -e "$REL/debroot"
@@ -46,8 +46,8 @@ cp "$REL/manifest.json" "$REL/SHA256SUMS" "$REL/artifacts/"* "$TMP/flat/"
 (cd "$TMP/flat" && sha256sum -c SHA256SUMS >/dev/null)
 
 mkdir -p "$TMP/tar" "$TMP/deb"
-tar -xzf "$REL/artifacts/avelra-sdk-$VERSION-linux-x64.tar.gz" -C "$TMP/tar"
-"$TMP/tar/avelra-sdk-$VERSION-linux-x64/bin/avelra" --version | grep -q "avelra $VERSION"
+tar -xzf "$REL/artifacts/avelra-$VERSION-linux-x64.tar.gz" -C "$TMP/tar"
+"$TMP/tar/avelra-$VERSION-linux-x64/bin/avelra" --version | grep -q "avelra $VERSION"
 dpkg-deb -x "$REL/artifacts/avelra_${VERSION}_amd64.deb" "$TMP/deb"
 "$TMP/deb/usr/bin/avelra" --version | grep -q "avelra $VERSION"
 

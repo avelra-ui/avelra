@@ -44,21 +44,21 @@ mkdir -p "$PACKAGE_DIR"
 STAGE="$(mktemp -d "$PACKAGE_DIR/.stage.XXXXXX")"
 trap 'rm -rf "$STAGE"' EXIT
 
-SDK_NAME="avelra-sdk-$VERSION-linux-x64"
-SDK_ROOT="$STAGE/$SDK_NAME"
-mkdir -p "$SDK_ROOT/bin" "$SDK_ROOT/libexec" \
-  "$SDK_ROOT/share" "$SDK_ROOT/share/doc/avelra"
-cp "$BIN_DIR/avelra" "$SDK_ROOT/bin/avelra"
-cp -a "$BUILD_DIR/libexec/avelra" "$SDK_ROOT/libexec/"
-cp -a "$BUILD_DIR/share/avelra" "$SDK_ROOT/share/"
+PACKAGE_NAME="avelra-$VERSION-linux-x64"
+PACKAGE_ROOT="$STAGE/$PACKAGE_NAME"
+mkdir -p "$PACKAGE_ROOT/bin" "$PACKAGE_ROOT/libexec" \
+  "$PACKAGE_ROOT/share" "$PACKAGE_ROOT/share/doc/avelra"
+cp "$BIN_DIR/avelra" "$PACKAGE_ROOT/bin/avelra"
+cp -a "$BUILD_DIR/libexec/avelra" "$PACKAGE_ROOT/libexec/"
+cp -a "$BUILD_DIR/share/avelra" "$PACKAGE_ROOT/share/"
 if [[ -f README.md ]]; then
-  cp README.md "$SDK_ROOT/share/doc/avelra/README.md"
+  cp README.md "$PACKAGE_ROOT/share/doc/avelra/README.md"
 fi
-chmod 0755 "$SDK_ROOT/bin/avelra" "$SDK_ROOT/libexec/avelra/"*
+chmod 0755 "$PACKAGE_ROOT/bin/avelra" "$PACKAGE_ROOT/libexec/avelra/"*
 
 if [[ "$BUILD_TAR" == 1 ]]; then
-  tar -czf "$PACKAGE_DIR/$SDK_NAME.tar.gz" -C "$STAGE" "$SDK_NAME"
-  echo "created $PACKAGE_DIR/$SDK_NAME.tar.gz"
+  tar -czf "$PACKAGE_DIR/$PACKAGE_NAME.tar.gz" -C "$STAGE" "$PACKAGE_NAME"
+  echo "created $PACKAGE_DIR/$PACKAGE_NAME.tar.gz"
 fi
 
 if [[ "$BUILD_DEB" == 1 ]]; then
@@ -92,7 +92,7 @@ fi
 
 (
   cd "$PACKAGE_DIR"
-  sha256sum avelra-sdk-*.tar.gz avelra_*_amd64.deb 2>/dev/null \
+  sha256sum avelra-*.tar.gz avelra_*_amd64.deb 2>/dev/null \
     > SHA256SUMS || true
 )
 echo "artifacts: $PACKAGE_DIR"

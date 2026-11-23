@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build Avelra for macOS arm64.
+# Build Avelra for macOS (arm64 or x64).
 # Experimental and unverified: run on macOS with Xcode Command Line Tools.
 set -euo pipefail
 
@@ -7,16 +7,21 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 BUILD_DIR="${BUILD_DIR:-$ROOT/build}"
+ARCH="${AVELRA_MACOS_ARCH:-arm64}"
+case "$ARCH" in
+  arm64|x64) ;;
+  *) echo "unsupported macOS arch: $ARCH" >&2; exit 2 ;;
+esac
 BIN_DIR="${BIN_DIR:-$BUILD_DIR/bin}"
 LIBEXEC_DIR="${LIBEXEC_DIR:-$BUILD_DIR/libexec/avelra}"
 LIB="$BUILD_DIR/vendor/webview/macos/lib/libwebview.a"
 export BUILD_DIR LIBEXEC_DIR
 
-mkdir -p "$BIN_DIR" "$LIBEXEC_DIR" "$BUILD_DIR/nimcache-macos"
+mkdir -p "$BIN_DIR" "$LIBEXEC_DIR" "$BUILD_DIR/nimcache-macos-$ARCH"
 VERSION="$(cat "$ROOT/VERSION")"
 COMMON=(c -d:release --opt:size --mm:orc -d:strip --hints:off
-  --os:macosx --cpu:arm64 --path:src "-d:avelraVersion=$VERSION"
-  --passC:-arch --passC:arm64 --passL:-arch --passL:arm64)
+  --os:macosx --cpu:$ARCH --path:src "-d:avelraVersion=$VERSION"
+  --passC:-arch --passC:$ARCH --passL:-arch --passL:$ARCH)
 if [[ ! -f "$LIB" ]]; then
   "$ROOT/scripts/webview/macos.sh"
 fi
@@ -27,11 +32,11 @@ fi
 
 nim c -d:release --opt:size --mm:orc -d:strip --hints:off \
   --threads:on \
-  --os:macosx --cpu:arm64 \
+  --os:macosx --cpu:$ARCH \
   --path:src \
-  --nimcache:"$BUILD_DIR/nimcache-macos" \
+  --nimcache:"$BUILD_DIR/nimcache-macos-$ARCH" \
   --out:"$LIBEXEC_DIR/avelra-runtime" \
-  --passC:-arch --passC:arm64 --passL:-arch --passL:arm64 \
+  --passC:-arch --passC:$ARCH --passL:-arch --passL:$ARCH \
   --passL:"$LIB" \
   --passL:"-framework WebKit" \
   --passL:"-framework Cocoa" \

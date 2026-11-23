@@ -9,6 +9,7 @@ BUILD_DIR="${BUILD_DIR:-$ROOT/build}"
 RELEASES_DIR="${AVELRA_RELEASES_DIR:-$BUILD_DIR/releases}"
 TARGET="${AVELRA_TARGET:-linux-x64}"
 VERSION="$(cat "$ROOT/VERSION")"
+ARTIFACT_LABEL="${AVELRA_ARTIFACT_LABEL:-$VERSION}"
 BIN_DIR="$BUILD_DIR/bin"
 LIBEXEC_DIR="$BUILD_DIR/libexec/avelra"
 SHARE_DIR="$BUILD_DIR/share/avelra"
@@ -102,15 +103,15 @@ python3 "$ROOT/scripts/release/manifest.py" \
   --tree "$TREE" --version "$VERSION" --target "$TARGET" \
   --commit "$COMMIT" --output "$STAGE/manifest.json"
 
-SDK_NAME="avelra-sdk-$VERSION-$TARGET"
+PACKAGE_NAME="avelra-$ARTIFACT_LABEL-$TARGET"
 if [[ "$MODE" != "tree" ]]; then
   mkdir -p "$STAGE/artifacts"
 fi
 if [[ "$MODE" == "all" || "$MODE" == "tar" ]]; then
-  mkdir -p "$STAGE/tarroot/$SDK_NAME"
-  cp -a "$TREE/." "$STAGE/tarroot/$SDK_NAME/"
-  tar -czf "$STAGE/artifacts/$SDK_NAME.tar.gz" \
-    -C "$STAGE/tarroot" "$SDK_NAME"
+  mkdir -p "$STAGE/tarroot/$PACKAGE_NAME"
+  cp -a "$TREE/." "$STAGE/tarroot/$PACKAGE_NAME/"
+  tar -czf "$STAGE/artifacts/$PACKAGE_NAME.tar.gz" \
+    -C "$STAGE/tarroot" "$PACKAGE_NAME"
 fi
 
 if [[ "$MODE" == "all" || "$MODE" == "deb" ]]; then

@@ -8,6 +8,7 @@ const PLATFORMS = {
   "linux-x64": "linux-x64",
   "win32-x64": "win32-x64",
   "darwin-arm64": "darwin-arm64",
+  "darwin-x64": "darwin-x64",
 };
 
 function platformKey() {
@@ -20,7 +21,7 @@ function run(args) {
   if (!key) {
     console.error(
       `avelra: unsupported platform ${process.platform}/${process.arch}; ` +
-        "supported: linux-x64, win32-x64, darwin-arm64"
+        "supported: linux-x64, win32-x64, darwin-x64, darwin-arm64"
     );
     return 1;
   }

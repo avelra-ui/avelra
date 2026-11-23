@@ -2,7 +2,7 @@
 
 import std/[os, osproc, strutils, unittest]
 
-let root = getTempDir() / ("avelra-sdk-package-" & $getCurrentProcessId())
+let root = getTempDir() / ("avelra-package-" & $getCurrentProcessId())
 let oldSource = getEnv("AVELRA_SDK_SOURCE")
 let buildDir = root / "build"
 let binDir = buildDir / "bin"
@@ -31,7 +31,7 @@ try:
     test "tar contains bin, libexec and templates":
       let result = execCmdEx("./scripts/package/sdk.sh --tar")
       check result.exitCode == 0
-      let archive = buildDir / "packages" / "avelra-sdk-9.9.9-linux-x64.tar.gz"
+      let archive = buildDir / "packages" / "avelra-9.9.9-linux-x64.tar.gz"
       check fileExists(archive)
       let listing = execCmdEx("tar -tzf " & archive).output
       check listing.contains("bin/avelra")

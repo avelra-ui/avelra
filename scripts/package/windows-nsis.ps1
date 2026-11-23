@@ -1,6 +1,7 @@
 # Package a staged Windows SDK release as an unsigned NSIS installer.
 param(
-    [Parameter(Mandatory = $true)][string]$ReleaseDir
+    [Parameter(Mandatory = $true)][string]$ReleaseDir,
+    [string]$ArtifactLabel = ""
 )
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -8,8 +9,9 @@ $ReleaseDir = (Resolve-Path $ReleaseDir).Path
 $Tree = Join-Path $ReleaseDir "tree"
 $Artifacts = Join-Path $ReleaseDir "artifacts"
 $Version = (Get-Content (Join-Path $Root "VERSION") -Raw).Trim()
-$Output = Join-Path $Artifacts "avelra-sdk-$Version-windows-x64-setup.exe"
-$Nsi = Join-Path $env:TEMP "avelra-sdk-$Version.nsi"
+if (-not $ArtifactLabel) { $ArtifactLabel = $Version }
+$Output = Join-Path $Artifacts "avelra-$ArtifactLabel-windows-x64-setup.exe"
+$Nsi = Join-Path $env:TEMP "avelra-$ArtifactLabel.nsi"
 
 if (-not (Test-Path (Join-Path $Tree "bin/avelra.exe"))) {
     throw "release tree is missing bin/avelra.exe: $Tree"
@@ -22,7 +24,7 @@ $TreeForNsis = $Tree.Replace('/', '\')
 
 $Script = @"
 !include "MUI2.nsh"
-Name "Avelra SDK"
+Name "Avelra"
 OutFile "$($Output.Replace('/', '\'))"
 InstallDir "`$LOCALAPPDATA\Avelra"
 RequestExecutionLevel user
@@ -33,14 +35,14 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_LANGUAGE "English"
 
-Section "Avelra SDK" SecMain
+Section "Avelra" SecMain
   SetOutPath "`$INSTDIR"
   File /r "$TreeForNsis\*"
   WriteUninstaller "`$INSTDIR\uninstall.exe"
   CreateDirectory "`$SMPROGRAMS\Avelra"
   CreateShortcut "`$SMPROGRAMS\Avelra\Avelra CLI.lnk" "`$INSTDIR\bin\avelra.exe"
 
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "DisplayName" "Avelra SDK"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "DisplayName" "Avelra"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "DisplayVersion" "$Version"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "Publisher" "Avelra"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Avelra" "InstallLocation" "`$INSTDIR"
