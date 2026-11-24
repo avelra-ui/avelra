@@ -26,6 +26,13 @@ function run(args) {
     return 1;
   }
 
+  if (key === "darwin-arm64") {
+    console.error(
+      "avelra: warning: macOS arm64 is an unverified technical preview; " +
+        "runtime/UI behavior has not been validated"
+    );
+  }
+
   const root = path.resolve(__dirname, "..", "platform", key);
   const binary = path.join(root, "bin", process.platform === "win32" ? "avelra.exe" : "avelra");
   if (!fs.existsSync(binary)) {
