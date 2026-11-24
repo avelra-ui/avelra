@@ -7,7 +7,8 @@ import support
 import extensions/host
 
 let root = getTempDir() / ("avelra-extension-host-" & $getCurrentProcessId())
-let executable = absolutePath(testBin("extension_echo"))
+let fixtureExt = when defined(windows): ".exe" else: ""
+let executable = absolutePath(testBin("extension_echo" & fixtureExt))
 removeDir(root)
 createDir(root)
 
@@ -19,7 +20,7 @@ proc makeConfig(id = "echo"; protocol = 1; command: seq[string] = @[executable])
     requestTimeoutMs: 30000,
     commands: initTable[string, seq[string]]()
   )
-  result.commands["linux"] = command
+  result.commands[hostOs()] = command
 
 try:
   suite "extension host":
