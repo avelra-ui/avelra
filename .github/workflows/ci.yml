@@ -113,13 +113,14 @@ jobs:
           ./scripts/package/windows-nsis.ps1 -ReleaseDir "build/releases/$version/windows-x64" -ArtifactLabel "$env:AVELRA_ARTIFACT_LABEL"
 
       - name: Run Windows unit/contract tests
-        shell: bash
+        shell: pwsh
         env:
           AVELRA_TARGET: windows-x64
           AVELRA_RELEASE_DIR: ${{ github.workspace }}/build/releases
         run: |
-          nim c --hints:off --nimcache:build/tests/nimcache-runner             --out:build/tests/run_tests tests/run_tests.nim
-          ./build/tests/run_tests
+          nim c --hints:off --nimcache:build/tests/nimcache-runner `
+            --out:build/tests/run_tests tests/run_tests.nim
+          ./build/tests/run_tests.exe
 
       - name: Stage Windows artifacts
         shell: pwsh

@@ -10,6 +10,8 @@ const exe = when defined(windows): ".exe" else: ""
 
 let buildDir = root / "build"
 let testBin = buildDir / "tests" / "bin"
+let testTmp = buildDir / "tests" / "tmp-core"
+let testHome = testTmp / "home"
 let nimcache = buildDir / "tests" / "nimcache-core"
 
 proc run(command: string; args: seq[string]): int =
@@ -41,17 +43,25 @@ proc coreSuite() =
   for name in [
     "test_native_call", "test_dispatcher", "test_url_policy",
     "test_static_paths", "test_resource_store", "test_zip", "test_payload",
-    "test_embedded_store", "test_bind_error", "test_platform_checks",
+    "test_embedded_store", "test_pack_cli", "test_single_exe",
+    "test_bind_error", "test_platform_checks",
     "test_cli_config", "test_cli_help", "test_cli_layout",
     "test_cli_init", "test_cli_build", "test_cli_run",
-    "test_extension_config"]:
+    "test_extension_config", "test_extension_host",
+    "test_extension_manager", "test_static_server"]:
     runTest(name)
 
 when defined(linux):
   quit(run("bash", @["tests/run_tests.sh"]))
 else:
+  removeDir(testTmp)
   createDir(testBin)
+  createDir(testHome)
   createDir(nimcache)
+  putEnv("TMPDIR", testTmp)
+  putEnv("TEMP", testTmp)
+  putEnv("TMP", testTmp)
+  putEnv("AVELRA_HOME", testHome)
   putEnv("AVELRA_CLI", buildDir / "bin" / ("avelra" & exe))
   putEnv("AVELRA_PACK", buildDir / "libexec" / "avelra" / ("avelra-pack" & exe))
   putEnv("AVELRA_TEST_BIN", testBin)
