@@ -57,7 +57,8 @@ let runDir = root / "run"
 let fallbackDir = root / "fallback"
 let fallbackClient = fallbackDir / "client"
 let packed = root / "packed"
-let harness = absolutePath(testBin("single_exe_harness"))
+let fixtureExt = when defined(windows): ".exe" else: ""
+let harness = absolutePath(testBin("single_exe_harness" & fixtureExt))
 
 removeDir(root)
 createDir(sourceClient / "assets")

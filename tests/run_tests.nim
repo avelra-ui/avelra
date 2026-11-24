@@ -61,7 +61,7 @@ else:
   putEnv("TMPDIR", testTmp)
   putEnv("TEMP", testTmp)
   putEnv("TMP", testTmp)
-  putEnv("AVELRA_HOME", testHome)
+  putEnv("AVELRA_HOME", buildDir)
   putEnv("AVELRA_CLI", buildDir / "bin" / ("avelra" & exe))
   putEnv("AVELRA_PACK", buildDir / "libexec" / "avelra" / ("avelra-pack" & exe))
   putEnv("AVELRA_TEST_BIN", testBin)
