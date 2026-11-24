@@ -63,11 +63,14 @@ jobs:
             build-essential cmake ninja-build pkg-config python3 \
             libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev
 
-      - name: Build and package Linux artifacts
-        run: |
-          ./scripts/build/linux.sh
-          ./tests/run_tests.sh
-          ./scripts/release/build.sh
+      - name: Build Linux
+        run: ./scripts/build/linux.sh
+
+      - name: Run Linux unit/contract tests
+        run: ./tests/run_tests.sh
+
+      - name: Assemble Linux artifacts
+        run: ./scripts/release/build.sh
 
       - name: Stage Linux artifacts
         run: |
@@ -95,10 +98,17 @@ jobs:
         shell: pwsh
         run: ./scripts/ci/install-nim-windows.ps1 2.2.12
 
-      - name: Build and package Windows artifacts
+      - name: Build Windows artifacts
+        shell: pwsh
+        run: ./scripts/build/windows.ps1
+
+      - name: Run Windows portable unit/contract tests
+        shell: bash
+        run: ./tests/run_tests.sh --portable
+
+      - name: Assemble release and NSIS
         shell: pwsh
         run: |
-          ./scripts/build/windows.ps1
           choco install nsis -y --no-progress
           python scripts/release/assemble.py --target windows-x64 --commit "${{ github.sha }}" --artifact-label "$env:AVELRA_ARTIFACT_LABEL"
           $version = (Get-Content VERSION -Raw).Trim()
@@ -134,12 +144,18 @@ jobs:
       - name: Install build tools
         run: brew install cmake
 
-      - name: Build and package macOS x64
+      - name: Build macOS x64
         env:
           AVELRA_MACOS_ARCH: x64
+        run: ./scripts/build/macos.sh
+
+      - name: Run macOS x64 portable unit/contract tests
+        run: ./tests/run_tests.sh --portable
+
+      - name: Assemble macOS x64 and DMG
+        env:
           AVELRA_TARGET: macos-x64
         run: |
-          ./scripts/build/macos.sh
           python3 scripts/release/assemble.py --target macos-x64 --commit "${{ github.sha }}" --artifact-label "$AVELRA_ARTIFACT_LABEL"
           version="$(cat VERSION)"
           ./scripts/package/macos-dmg.sh "build/releases/$version/macos-x64"
@@ -172,12 +188,18 @@ jobs:
       - name: Install build tools
         run: brew install cmake
 
-      - name: Build and package macOS arm64
+      - name: Build macOS arm64
         env:
           AVELRA_MACOS_ARCH: arm64
+        run: ./scripts/build/macos.sh
+
+      - name: Run macOS arm64 portable unit/contract tests
+        run: ./tests/run_tests.sh --portable
+
+      - name: Assemble macOS arm64 and DMG
+        env:
           AVELRA_TARGET: macos-arm64
         run: |
-          ./scripts/build/macos.sh
           python3 scripts/release/assemble.py --target macos-arm64 --commit "${{ github.sha }}" --artifact-label "$AVELRA_ARTIFACT_LABEL"
           version="$(cat VERSION)"
           ./scripts/package/macos-dmg.sh "build/releases/$version/macos-arm64"
