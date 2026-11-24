@@ -47,14 +47,6 @@ await window.avelra.os.openUrl("https://avelra.dev/docs/");
 The 0.4 public API focuses on core lifecycle, health and OS helpers.
 Extensions and `callExt` are planned for 0.5.
 
-## Platform status
-
-macOS arm64 is an **unverified technical preview**. CI builds the artifact, but
-runtime and UI behavior have not been validated.
-
-The 0.4.2 package remains Linux x64 only. The launcher prints a warning when it
-starts on macOS arm64.
-
 ## Requirements
 
 - Linux x64;

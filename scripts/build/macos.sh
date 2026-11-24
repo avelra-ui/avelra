@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build Avelra for macOS (arm64 or x64).
+# Build Avelra for macOS x64.
 # Experimental and unverified: run on macOS with Xcode Command Line Tools.
 set -euo pipefail
 
@@ -7,11 +7,10 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 BUILD_DIR="${BUILD_DIR:-$ROOT/build}"
-ARCH="${AVELRA_MACOS_ARCH:-arm64}"
+ARCH="${AVELRA_MACOS_ARCH:-x64}"
 case "$ARCH" in
-  arm64) NIM_CPU=arm64; CLANG_ARCH=arm64 ;;
   x64) NIM_CPU=amd64; CLANG_ARCH=x86_64 ;;
-  *) echo "unsupported macOS arch: $ARCH" >&2; exit 2 ;;
+  *) echo "unsupported macOS arch: $ARCH (0.5 ships x64 only)" >&2; exit 2 ;;
 esac
 BIN_DIR="${BIN_DIR:-$BUILD_DIR/bin}"
 LIBEXEC_DIR="${LIBEXEC_DIR:-$BUILD_DIR/libexec/avelra}"

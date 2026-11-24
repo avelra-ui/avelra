@@ -7,7 +7,6 @@ const path = require("node:path");
 const PLATFORMS = {
   "linux-x64": "linux-x64",
   "win32-x64": "win32-x64",
-  "darwin-arm64": "darwin-arm64",
   "darwin-x64": "darwin-x64",
 };
 
@@ -21,16 +20,9 @@ function run(args) {
   if (!key) {
     console.error(
       `avelra: unsupported platform ${process.platform}/${process.arch}; ` +
-        "supported: linux-x64, win32-x64, darwin-x64, darwin-arm64"
+        "supported: linux-x64, win32-x64, darwin-x64"
     );
     return 1;
-  }
-
-  if (key === "darwin-arm64") {
-    console.error(
-      "avelra: warning: macOS arm64 is an unverified technical preview; " +
-        "runtime/UI behavior has not been validated"
-    );
   }
 
   const root = path.resolve(__dirname, "..", "platform", key);

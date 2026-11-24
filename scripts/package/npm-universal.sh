@@ -14,8 +14,7 @@ INPUT="$(cd "$INPUT" && pwd)"
 
 for name in avelra-$ARTIFACT_LABEL-linux-x64.tar.gz \
             avelra-$ARTIFACT_LABEL-windows-x64.zip \
-            avelra-$ARTIFACT_LABEL-macos-x64.tar.gz \
-            avelra-$ARTIFACT_LABEL-macos-arm64.tar.gz; do
+            avelra-$ARTIFACT_LABEL-macos-x64.tar.gz; do
   [[ -f "$INPUT/$name" ]] || {
     echo "missing $INPUT/$name" >&2
     exit 1
@@ -34,7 +33,7 @@ data["version"] = sys.argv[2]
 p.write_text(json.dumps(data, indent=2) + "\n")
 PY_VERSION
 rm -rf "$STAGE/platform"
-mkdir -p "$STAGE/platform"/{linux-x64,win32-x64,darwin-x64,darwin-arm64} "$OUT"
+mkdir -p "$STAGE/platform"/{linux-x64,win32-x64,darwin-x64} "$OUT"
 
 tar -xzf "$INPUT/avelra-$ARTIFACT_LABEL-linux-x64.tar.gz" \
   -C "$STAGE/platform/linux-x64" --strip-components=1
@@ -43,18 +42,13 @@ cp -a "$STAGE/tmp-win/avelra-$ARTIFACT_LABEL-windows-x64/." "$STAGE/platform/win
 rm -rf "$STAGE/tmp-win"
 tar -xzf "$INPUT/avelra-$ARTIFACT_LABEL-macos-x64.tar.gz" \
   -C "$STAGE/platform/darwin-x64" --strip-components=1
-tar -xzf "$INPUT/avelra-$ARTIFACT_LABEL-macos-arm64.tar.gz" \
-  -C "$STAGE/platform/darwin-arm64" --strip-components=1
 
 chmod +x "$STAGE/platform/linux-x64/bin/avelra" \
   "$STAGE/platform/darwin-x64/bin/avelra" \
-  "$STAGE/platform/darwin-arm64/bin/avelra" \
   "$STAGE/platform/linux-x64/libexec/avelra/avelra-runtime" \
   "$STAGE/platform/linux-x64/libexec/avelra/avelra-pack" \
   "$STAGE/platform/darwin-x64/libexec/avelra/avelra-runtime" \
-  "$STAGE/platform/darwin-x64/libexec/avelra/avelra-pack" \
-  "$STAGE/platform/darwin-arm64/libexec/avelra/avelra-runtime" \
-  "$STAGE/platform/darwin-arm64/libexec/avelra/avelra-pack"
+  "$STAGE/platform/darwin-x64/libexec/avelra/avelra-pack"
 
 (cd "$STAGE" && npm pack --pack-destination "$OUT" >/dev/null)
 test -f "$OUT/avelra-$VERSION.tgz" || {
