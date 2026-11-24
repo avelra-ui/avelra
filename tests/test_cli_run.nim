@@ -16,8 +16,9 @@ writeFile(root / "avelra.config.json", """{
   "client":"client",
   "window":{"title":"Run Test","width":640,"height":480}
 }""")
-let fake = root / "libexec" / "avelra" / ("avelra-runtime" & (when defined(windows): ".exe" else: ""))
-copyFile(testBin("fake_runtime"), fake)
+let fakeExt = when defined(windows): ".exe" else: ""
+let fake = root / "libexec" / "avelra" / ("avelra-runtime" & fakeExt)
+copyFile(testBin("fake_runtime" & fakeExt), fake)
 setFilePermissions(fake, {fpUserRead, fpUserWrite, fpUserExec})
 putEnv("AVELRA_HOME", root)
 putEnv("AVELRA_SKIP_PREFLIGHT", "1")
