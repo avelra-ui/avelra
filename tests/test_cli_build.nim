@@ -3,6 +3,7 @@
 import std/[json, options, os, osproc, unittest]
 
 import adapters/archive/[payload, zip_store]
+import cli/config
 import cli/project
 import support
 
@@ -50,14 +51,18 @@ try:
       let app = root / "with-extension"
       let configPath = initProject(app, templateDirPath)
       createDir(app / "extensions" / "echo")
-      copyFile(testBin("extension_echo"),
-        app / "extensions" / "echo" / "echo")
+      let fixtureExt = when defined(windows): ".exe" else: ""
+      let echoName = "echo" & fixtureExt
+      copyFile(testBin("extension_echo" & fixtureExt),
+        app / "extensions" / "echo" / echoName)
       writeFile(app / "extensions" / "echo" / "echo.nim", "source must not ship")
       var config = parseFile(configPath)
+      var command = newJObject()
+      command[hostOs()] = %*["extensions/echo/" & echoName]
       config["extensions"] = %*[{
         "id": "echo",
         "protocol": 1,
-        "command": {"linux": ["extensions/echo/echo"]}
+        "command": command
       }]
       writeFile(configPath, config.pretty & "\n")
       let result = execCmdEx(cliPath() & " --config " & configPath & " build")
@@ -65,7 +70,7 @@ try:
       let extName = when defined(windows): "with-extension.exe" else: "with-extension"
       check fileExists(app / "dist" / "with-extension" / "bin" / extName)
       check fileExists(app / "dist" / "with-extension" / "avelra.config.json")
-      check fileExists(app / "dist" / "with-extension" / "extensions" / "echo" / "echo")
+      check fileExists(app / "dist" / "with-extension" / "extensions" / "echo" / echoName)
       check not fileExists(app / "dist" / "with-extension" / "extensions" / "echo" / "echo.nim")
 
     test "fails when client is missing":
