@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TARGETS = {
     "windows-x64": {"suffix": ".exe", "archive": "zip"},
     "macos-arm64": {"suffix": "", "archive": "tar.gz"},
+    "macos-x64": {"suffix": "", "archive": "tar.gz"},
 }
 
 
@@ -45,8 +46,10 @@ def main() -> int:
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build")
     parser.add_argument("--releases-dir", type=Path, default=ROOT / "build/releases")
     parser.add_argument("--commit", default="unknown")
+    parser.add_argument("--artifact-label")
     args = parser.parse_args()
 
+    label = args.artifact_label or args.version
     spec = TARGETS[args.target]
     suffix = spec["suffix"]
     build = args.build_dir
@@ -99,7 +102,7 @@ def main() -> int:
 
         artifacts = stage / "artifacts"
         artifacts.mkdir()
-        name = f"avelra-sdk-{args.version}-{args.target}"
+        name = f"avelra-{label}-{args.target}"
         if spec["archive"] == "zip":
             with zipfile.ZipFile(artifacts / f"{name}.zip", "w", zipfile.ZIP_DEFLATED) as zf:
                 for path in sorted(tree.rglob("*")):

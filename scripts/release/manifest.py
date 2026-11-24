@@ -51,6 +51,12 @@ def main() -> int:
         "target": args.target,
         "commit": args.commit,
         "builtAt": built_at.isoformat().replace("+00:00", "Z"),
+        "provenance": {
+            "runId": os.environ.get("GITHUB_RUN_ID"),
+            "runNumber": os.environ.get("GITHUB_RUN_NUMBER"),
+            "workflow": os.environ.get("GITHUB_WORKFLOW"),
+            "artifactLabel": os.environ.get("AVELRA_ARTIFACT_LABEL", args.version),
+        },
         "protocols": {"native": 1, "extensions": 1},
         "files": files,
     }

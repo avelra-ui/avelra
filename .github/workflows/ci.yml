@@ -1,0 +1,420 @@
+name: ci
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AVELRA_ARTIFACT_LABEL: ${{ github.run_number }}-${{ github.sha }}
+
+jobs:
+  static-checks:
+    if: (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Secret scan
+        run: ./scripts/ci/scan-secrets.sh
+
+      - name: Documentation check
+        run: ./scripts/checks/docs.py
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: ShellCheck
+        run: |
+          mapfile -t files < <(find scripts tests -type f -name '*.sh' -print)
+          test "${#files[@]}" -gt 0
+          shellcheck --severity=warning "${files[@]}"
+
+      - name: Install Nim
+        run: ./scripts/ci/install-nim-linux.sh 2.2.12
+
+      - name: Nim checks
+        run: ./scripts/checks/platforms.sh
+
+  linux:
+    if: (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install Nim
+        run: ./scripts/ci/install-nim-linux.sh 2.2.12
+
+      - name: Install native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake ninja-build pkg-config python3 \
+            libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev
+
+      - name: Build and package Linux artifacts
+        run: |
+          ./scripts/build/linux.sh
+          ./tests/run_tests.sh
+          ./scripts/release/build.sh
+
+      - name: Stage Linux artifacts
+        run: |
+          version="$(cat VERSION)"
+          mkdir -p "ci/${{ github.run_number }}/${{ github.sha }}/linux-x64"
+          cp -a "build/releases/$version/linux-x64/." "ci/${{ github.run_number }}/${{ github.sha }}/linux-x64/"
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-linux-x64
+          path: ci/${{ github.run_number }}/${{ github.sha }}/linux-x64
+          retention-days: 90
+          if-no-files-found: error
+
+  windows:
+    if: (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install Nim
+        shell: pwsh
+        run: ./scripts/ci/install-nim-windows.ps1 2.2.12
+
+      - name: Build and package Windows artifacts
+        shell: pwsh
+        run: |
+          ./scripts/build/windows.ps1
+          choco install nsis -y --no-progress
+          python scripts/release/assemble.py --target windows-x64 --commit "${{ github.sha }}" --artifact-label "$env:AVELRA_ARTIFACT_LABEL"
+          $version = (Get-Content VERSION -Raw).Trim()
+          ./scripts/package/windows-nsis.ps1 -ReleaseDir "build/releases/$version/windows-x64" -ArtifactLabel "$env:AVELRA_ARTIFACT_LABEL"
+
+      - name: Stage Windows artifacts
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $dest = "ci/${{ github.run_number }}/${{ github.sha }}/windows-x64"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Copy-Item "build/releases/$version/windows-x64/*" $dest -Recurse -Force
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-windows-x64
+          path: ci/${{ github.run_number }}/${{ github.sha }}/windows-x64
+          retention-days: 90
+          if-no-files-found: error
+
+  macos-x64:
+    if: (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
+    runs-on: macos-15-intel
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install Nim
+        run: ./scripts/ci/install-nim-macos.sh 2.2.12
+
+      - name: Install build tools
+        run: brew install cmake
+
+      - name: Build and package macOS x64
+        env:
+          AVELRA_MACOS_ARCH: x64
+          AVELRA_TARGET: macos-x64
+        run: |
+          ./scripts/build/macos.sh
+          python3 scripts/release/assemble.py --target macos-x64 --commit "${{ github.sha }}" --artifact-label "$AVELRA_ARTIFACT_LABEL"
+          version="$(cat VERSION)"
+          ./scripts/package/macos-dmg.sh "build/releases/$version/macos-x64"
+
+      - name: Stage macOS x64 artifacts
+        run: |
+          version="$(cat VERSION)"
+          mkdir -p "ci/${{ github.run_number }}/${{ github.sha }}/macos-x64"
+          cp -a "build/releases/$version/macos-x64/." "ci/${{ github.run_number }}/${{ github.sha }}/macos-x64/"
+
+      - name: Upload macOS x64 artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-macos-x64
+          path: ci/${{ github.run_number }}/${{ github.sha }}/macos-x64
+          retention-days: 90
+          if-no-files-found: error
+
+  macos-arm64:
+    if: (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install Nim
+        run: ./scripts/ci/install-nim-macos.sh 2.2.12
+
+      - name: Install build tools
+        run: brew install cmake
+
+      - name: Build and package macOS arm64
+        env:
+          AVELRA_MACOS_ARCH: arm64
+          AVELRA_TARGET: macos-arm64
+        run: |
+          ./scripts/build/macos.sh
+          python3 scripts/release/assemble.py --target macos-arm64 --commit "${{ github.sha }}" --artifact-label "$AVELRA_ARTIFACT_LABEL"
+          version="$(cat VERSION)"
+          ./scripts/package/macos-dmg.sh "build/releases/$version/macos-arm64"
+
+      - name: Stage macOS arm64 artifacts
+        run: |
+          version="$(cat VERSION)"
+          mkdir -p "ci/${{ github.run_number }}/${{ github.sha }}/macos-arm64"
+          cp -a "build/releases/$version/macos-arm64/." "ci/${{ github.run_number }}/${{ github.sha }}/macos-arm64/"
+
+      - name: Upload macOS arm64 artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-macos-arm64
+          path: ci/${{ github.run_number }}/${{ github.sha }}/macos-arm64
+          retention-days: 90
+          if-no-files-found: error
+
+  npm:
+    if: (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
+    needs: [linux, windows, macos-x64, macos-arm64]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          pattern: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-*
+          path: ci-artifacts
+
+      - name: Build npm tarball
+        run: |
+          mkdir -p npm-input npm-output
+          find ci-artifacts -type f -exec cp {} npm-input/ \;
+          ./scripts/package/npm-universal.sh "$PWD/npm-input" "$PWD/npm-output"
+          mkdir -p "ci/${{ github.run_number }}/${{ github.sha }}/npm"
+          cp -a npm-output/. "ci/${{ github.run_number }}/${{ github.sha }}/npm/"
+
+      - name: Upload npm artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-npm
+          path: ci/${{ github.run_number }}/${{ github.sha }}/npm
+          retention-days: 90
+          if-no-files-found: error
+
+  build-main:
+    if: github.event_name == 'push'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux-x64
+            os: ubuntu-24.04
+          - target: windows-x64
+            os: windows-2022
+          - target: macos-x64
+            os: macos-15-intel
+          - target: macos-arm64
+            os: macos-15
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install Nim (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            ./scripts/ci/install-nim-macos.sh 2.2.12
+          else
+            ./scripts/ci/install-nim-linux.sh 2.2.12
+          fi
+
+      - name: Install Nim (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/ci/install-nim-windows.ps1 2.2.12
+
+      - name: Install Linux dependencies
+        if: matrix.target == 'linux-x64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake ninja-build pkg-config python3 \
+            libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev
+
+      - name: Install macOS tools
+        if: startsWith(matrix.target, 'macos-')
+        run: brew install cmake
+
+      - name: Build Linux artifacts
+        if: matrix.target == 'linux-x64'
+        run: |
+          ./scripts/build/linux.sh
+          ./scripts/release/build.sh
+
+      - name: Build Windows artifacts
+        if: matrix.target == 'windows-x64'
+        shell: pwsh
+        run: |
+          ./scripts/build/windows.ps1
+          choco install nsis -y --no-progress
+          python scripts/release/assemble.py --target windows-x64 --commit "${{ github.sha }}" --artifact-label "$env:AVELRA_ARTIFACT_LABEL"
+          $version = (Get-Content VERSION -Raw).Trim()
+          ./scripts/package/windows-nsis.ps1 -ReleaseDir "build/releases/$version/windows-x64" -ArtifactLabel "$env:AVELRA_ARTIFACT_LABEL"
+
+      - name: Build macOS x64 artifacts
+        if: matrix.target == 'macos-x64'
+        env:
+          AVELRA_MACOS_ARCH: x64
+          AVELRA_TARGET: macos-x64
+        run: |
+          ./scripts/build/macos.sh
+          python3 scripts/release/assemble.py --target macos-x64 --commit "${{ github.sha }}" --artifact-label "$AVELRA_ARTIFACT_LABEL"
+          version="$(cat VERSION)"
+          ./scripts/package/macos-dmg.sh "build/releases/$version/macos-x64"
+
+      - name: Build macOS arm64 artifacts
+        if: matrix.target == 'macos-arm64'
+        env:
+          AVELRA_MACOS_ARCH: arm64
+          AVELRA_TARGET: macos-arm64
+        run: |
+          ./scripts/build/macos.sh
+          python3 scripts/release/assemble.py --target macos-arm64 --commit "${{ github.sha }}" --artifact-label "$AVELRA_ARTIFACT_LABEL"
+          version="$(cat VERSION)"
+          ./scripts/package/macos-dmg.sh "build/releases/$version/macos-arm64"
+
+      - name: Stage and upload Linux artifacts
+        if: matrix.target == 'linux-x64'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-linux-x64
+          path: build/releases/*/${{ matrix.target }}
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Stage and upload Windows artifacts
+        if: matrix.target == 'windows-x64'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-windows-x64
+          path: build/releases/*/${{ matrix.target }}
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Stage and upload macOS x64 artifacts
+        if: matrix.target == 'macos-x64'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-macos-x64
+          path: build/releases/*/${{ matrix.target }}
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Stage and upload macOS arm64 artifacts
+        if: matrix.target == 'macos-arm64'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-macos-arm64
+          path: build/releases/*/${{ matrix.target }}
+          retention-days: 90
+          if-no-files-found: error
+
+  npm-main:
+    if: github.event_name == 'push'
+    needs: build-main
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          pattern: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-*
+          path: ci-artifacts
+      - name: Build npm tarball
+        run: |
+          mkdir -p npm-input npm-output
+          find ci-artifacts -type f -exec cp {} npm-input/ \;
+          ./scripts/package/npm-universal.sh "$PWD/npm-input" "$PWD/npm-output"
+      - name: Upload npm artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: avelra-${{ env.AVELRA_ARTIFACT_LABEL }}-npm
+          path: npm-output
+          retention-days: 90
+          if-no-files-found: error
+
+  cleanup-pr:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Delete closed PR artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          runs="$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/actions/runs?event=pull_request&per_page=100" \
+            --jq ".workflow_runs[] | select(any(.pull_requests[]?; .number == ${PR_NUMBER})) | .id")"
+          for run in $runs; do
+            ids="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run}/artifacts?per_page=100" \
+              --jq '.artifacts[].id')"
+            for id in $ids; do
+              gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}" >/dev/null
+            done
+          done
+
+  cleanup-main:
+    if: github.event_name == 'push'
+    needs: [build-main, npm-main]
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Delete previous main artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          runs="$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/actions/runs?event=push&branch=main&per_page=100" \
+            --jq ".workflow_runs[] | select(.id != ${GITHUB_RUN_ID}) | .id")"
+          for run in $runs; do
+            ids="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run}/artifacts?per_page=100" \
+              --jq '.artifacts[].id')"
+            for id in $ids; do
+              gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}" >/dev/null
+            done
+          done

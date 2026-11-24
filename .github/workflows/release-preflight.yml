@@ -38,8 +38,8 @@ jobs:
           version="$(cat VERSION)"
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
-          tar -xzf "build/releases/${version}/linux-x64/artifacts/avelra-sdk-${version}-linux-x64.tar.gz" -C "$tmp"
-          sdk="$tmp/avelra-sdk-${version}-linux-x64"
+          tar -xzf "build/releases/${version}/linux-x64/artifacts/avelra-${version}-linux-x64.tar.gz" -C "$tmp"
+          sdk="$tmp/avelra-${version}-linux-x64"
           ./scripts/checks/glibc.py --max 2.35 \
             "$sdk/bin/avelra" \
             "$sdk/libexec/avelra/avelra-runtime" \
