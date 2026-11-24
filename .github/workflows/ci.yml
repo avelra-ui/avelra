@@ -381,19 +381,25 @@ jobs:
       - name: Delete closed PR artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
           runs="$(gh api --paginate \
             "repos/${GITHUB_REPOSITORY}/actions/runs?event=pull_request&per_page=100" \
-            --jq ".workflow_runs[] | select(any(.pull_requests[]?; .number == ${PR_NUMBER})) | .id")"
+            --jq ".workflow_runs[] | select(.head_branch == env.PR_HEAD_REF) | .id")"
+          deleted=0
+          if [ -z "$runs" ]; then
+            echo "::warning::no pull_request runs found for ${PR_HEAD_REF}"
+          fi
           for run in $runs; do
             ids="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run}/artifacts?per_page=100" \
               --jq '.artifacts[].id')"
             for id in $ids; do
               gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}" >/dev/null
+              deleted=$((deleted + 1))
             done
           done
+          echo "deleted artifacts: ${deleted}"
 
   cleanup-main:
     if: github.event_name == 'push'
