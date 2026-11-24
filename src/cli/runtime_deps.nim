@@ -28,6 +28,11 @@ type
     state*: DependencyState
     version*: string
 
+  LibraryProbe* = object
+    spec*: LibrarySpec
+    present*: bool
+    version*: string
+
 proc readVersion(lib: LibHandle; spec: LibrarySpec):
     tuple[ok: bool, major, minor, micro: int] =
   if spec.majorSymbol.len == 0:
@@ -42,30 +47,59 @@ proc readVersion(lib: LibHandle; spec: LibrarySpec):
   let micro = cast[proc(): cuint {.cdecl.}](microPtr)()
   (true, int(major), int(minor), int(micro))
 
-proc diagnose*(specs: openArray[LibrarySpec]): seq[DependencyResult] =
-  ## Inspect each library without starting GTK or a WebKit process.
-  for spec in specs:
-    let lib = loadLib(spec.library)
-    if lib == nil:
-      result.add DependencyResult(spec: spec, state: depMissing)
-      continue
-    let version = readVersion(lib, spec)
-    unloadLib(lib)
-    if not version.ok:
-      result.add DependencyResult(spec: spec, state: depUnknown)
-    elif version.major < spec.minMajor or
-        (version.major == spec.minMajor and version.minor < spec.minMinor):
-      result.add DependencyResult(
-        spec: spec,
-        state: depTooOld,
-        version: "$1.$2.$3" % [$version.major, $version.minor, $version.micro]
-      )
+proc probeLibrary(spec: LibrarySpec): LibraryProbe =
+  result.spec = spec
+  let lib = loadLib(spec.library)
+  if lib == nil:
+    return
+  result.present = true
+  let version = readVersion(lib, spec)
+  unloadLib(lib)
+  if version.ok:
+    result.version = "$1.$2.$3" % [$version.major, $version.minor, $version.micro]
+
+proc parseVersion(value: string): tuple[major, minor, patch: int] =
+  let parts = value.split('.')
+  try:
+    if parts.len >= 1: result.major = parseInt(parts[0])
+    if parts.len >= 2: result.minor = parseInt(parts[1])
+    if parts.len >= 3: result.patch = parseInt(parts[2])
+  except ValueError:
+    discard
+
+proc evaluateLibrary(probe: LibraryProbe): DependencyResult =
+  result.spec = probe.spec
+  if not probe.present:
+    result.state = depMissing
+  elif probe.version.len == 0:
+    result.state = depUnknown
+  else:
+    result.version = probe.version
+    let version = parseVersion(probe.version)
+    if version.major < probe.spec.minMajor or
+        (version.major == probe.spec.minMajor and version.minor < probe.spec.minMinor):
+      result.state = depTooOld
     else:
-      result.add DependencyResult(
-        spec: spec,
-        state: depOk,
-        version: "$1.$2.$3" % [$version.major, $version.minor, $version.micro]
-      )
+      result.state = depOk
+
+proc evaluateLinux*(probes: openArray[LibraryProbe]): seq[DependencyResult] =
+  ## Pure evaluation of a Linux runtime snapshot.
+  for probe in probes:
+    result.add evaluateLibrary(probe)
+
+proc linuxRuntimeSpecs*(): seq[LibrarySpec]
+
+proc linuxRuntimeSnapshot*(): seq[LibraryProbe] =
+  ## Probe GTK/WebKit without starting a GUI process.
+  for spec in linuxRuntimeSpecs():
+    result.add probeLibrary(spec)
+
+proc diagnose*(specs: openArray[LibrarySpec]): seq[DependencyResult] =
+  ## Convenience probe+evaluate for callers that still pass specs directly.
+  var probes: seq[LibraryProbe]
+  for spec in specs:
+    probes.add probeLibrary(spec)
+  evaluateLinux(probes)
 
 proc osRelease(): string =
   try:
@@ -155,7 +189,7 @@ when defined(linux):
   proc runtimePreflight*(): bool =
     if getEnv("AVELRA_SKIP_PREFLIGHT") == "1":
       return true
-    let results = diagnose(linuxRuntimeSpecs())
+    let results = evaluateLinux(linuxRuntimeSnapshot())
     if failures(results) == 0:
       return true
     for item in results:

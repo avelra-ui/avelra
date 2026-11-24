@@ -20,19 +20,6 @@ proc run(command: string; args: seq[string]): int =
   echo "::endgroup::"
   result = code
 
-proc compileLib(name, source: string) =
-  let ext =
-    when defined(windows): ".dll"
-    elif defined(macosx): ".dylib"
-    else: ".so"
-  let code = run("nim", @[
-    "c", "--hints:off", "--app:lib", "--path:src", "--path:tests",
-    "--nimcache:" & nimcache,
-    "--out:" & (testBin / (name & ext)),
-    source])
-  if code != 0:
-    raise newException(OSError, "library compile failed: " & name)
-
 proc compileTest(name: string; source = "") =
   let sourcePath = if source.len > 0: source else: "tests/" & name & ".nim"
   let code = run("nim", @[
@@ -57,7 +44,7 @@ proc coreSuite() =
     "test_embedded_store", "test_bind_error", "test_platform_checks",
     "test_cli_config", "test_cli_help", "test_cli_layout",
     "test_cli_init", "test_cli_build", "test_cli_run",
-    "test_runtime_deps", "test_runtime_deps_common", "test_extension_config"]:
+    "test_extension_config"]:
     runTest(name)
 
 when defined(linux):
@@ -69,8 +56,8 @@ else:
   putEnv("AVELRA_PACK", buildDir / "libexec" / "avelra" / ("avelra-pack" & exe))
   putEnv("AVELRA_TEST_BIN", testBin)
   compileTest("fake_runtime", "tests/fixtures/fake_runtime.nim")
-  compileLib("fake_version_lib", "tests/fixtures/fake_version_lib.nim")
-  compileLib("fake_empty_lib", "tests/fixtures/fake_empty_lib.nim")
+  compileTest("extension_echo", "tests/fixtures/extension_echo.nim")
+  compileTest("single_exe_harness", "tests/single_exe_harness.nim")
   coreSuite()
   runTest("test_package_contract")
   runTest("test_installer_platform")

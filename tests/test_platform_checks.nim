@@ -31,7 +31,7 @@ suite "platform checks":
   test "supported macOS snapshot":
     let checks = evaluateMacos(PlatformSnapshot(
       osVersion: "14.5",
-      arch: "arm64",
+      arch: "x86_64",
       webKitPresent: true
     ))
     check failures(checks) == 0
@@ -39,7 +39,7 @@ suite "platform checks":
   test "unsupported macOS snapshot":
     let checks = evaluateMacos(PlatformSnapshot(
       osVersion: "11.7",
-      arch: "x86_64",
+      arch: "arm64",
       webKitPresent: false
     ))
     check failures(checks) == 3

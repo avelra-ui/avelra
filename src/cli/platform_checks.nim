@@ -100,13 +100,13 @@ proc evaluateMacos*(snapshot: PlatformSnapshot): seq[CheckResult] =
     "macOS", snapshot.osVersion, MinMacosVersion,
     "update macOS to 12.0 or newer"
   )
-  if snapshot.arch == "arm64":
-    result.add CheckResult(display: "architecture", detail: "arm64",
+  if snapshot.arch == "x86_64":
+    result.add CheckResult(display: "architecture", detail: "x86_64",
       state: checkOk)
   else:
     result.add CheckResult(display: "architecture",
-      detail: snapshot.arch & " (arm64 required)", state: checkTooOld,
-      hint: "use the arm64 Avelra build")
+      detail: snapshot.arch & " (x86_64 required)", state: checkTooOld,
+      hint: "use the macOS x64 Avelra build")
   if snapshot.webKitPresent:
     result.add CheckResult(display: "WebKit framework", detail: "present",
       state: checkOk)

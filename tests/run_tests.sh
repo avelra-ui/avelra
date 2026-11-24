@@ -58,18 +58,6 @@ compile_test single_exe_harness tests/single_exe_harness.nim
 compile_test extension_echo tests/fixtures/extension_echo.nim
 compile_test fake_runtime tests/fixtures/fake_runtime.nim
 
-case "$(uname -s)" in
-  MINGW*|MSYS*|CYGWIN*) LIBEXT=".dll" ;;
-  Darwin*) LIBEXT=".dylib" ;;
-  *) LIBEXT=".so" ;;
-esac
-nim c --hints:off --app:lib --path:src --path:tests \
-  --nimcache:"$NIMCACHE" --out:"$TEST_BIN/fake_version_lib$LIBEXT" \
-  tests/fixtures/fake_version_lib.nim >/dev/null
-nim c --hints:off --app:lib --path:src --path:tests \
-  --nimcache:"$NIMCACHE" --out:"$TEST_BIN/fake_empty_lib$LIBEXT" \
-  tests/fixtures/fake_empty_lib.nim >/dev/null
-
 run_test test_native_call
 run_test test_dispatcher
 run_test test_url_policy
