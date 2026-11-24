@@ -45,13 +45,6 @@ def main() -> int:
     built_at = datetime.fromtimestamp(
         int(epoch), tz=timezone.utc
     ) if epoch else datetime.now(timezone.utc)
-    validation = None
-    if args.target == "macos-arm64":
-        validation = {
-            "status": "unverified",
-            "reason": "technical preview; runtime/UI not validated",
-        }
-
     manifest = {
         "name": "avelra",
         "version": args.version,
@@ -67,8 +60,6 @@ def main() -> int:
         "protocols": {"native": 1, "extensions": 1},
         "files": files,
     }
-    if validation is not None:
-        manifest["verification"] = validation
     args.output.write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",

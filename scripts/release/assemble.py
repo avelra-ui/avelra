@@ -21,7 +21,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TARGETS = {
     "windows-x64": {"suffix": ".exe", "archive": "zip"},
-    "macos-arm64": {"suffix": "", "archive": "tar.gz"},
     "macos-x64": {"suffix": "", "archive": "tar.gz"},
 }
 

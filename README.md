@@ -56,7 +56,6 @@ toolchain stays yours.
 | Ubuntu 22.04 / 24.04 / 26.04 x64 | Verified SDK, runtime, loading overlay, deb and tar | 0.4 public preview |
 | Debian 12 / 13 x64 | Verified SDK, runtime, loading overlay, deb and tar | 0.4 public preview |
 | Windows x64 | SDK, runtime, NSIS installer and doctor checks build in CI | UI/runtime smoke, signing and public rollout |
-| macOS arm64 | SDK, runtime, DMG and doctor checks build in CI | Runtime smoke, app bundle, signing/notarization |
 | Fedora/RHEL-compatible x64 | Portable tar support | Native RPM packaging |
 | Other glibc-based x64 | Portable tar support | Compatibility validation continues |
 
