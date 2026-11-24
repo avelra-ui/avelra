@@ -67,7 +67,9 @@ jobs:
         run: ./scripts/build/linux.sh
 
       - name: Run Linux unit/contract tests
-        run: ./tests/run_tests.sh
+        run: |
+          nim c --hints:off --nimcache:build/tests/nimcache-runner             --out:build/tests/run_tests tests/run_tests.nim
+          ./build/tests/run_tests
 
       - name: Assemble Linux artifacts
         run: ./scripts/release/build.sh
@@ -102,10 +104,6 @@ jobs:
         shell: pwsh
         run: ./scripts/build/windows.ps1
 
-      - name: Run Windows portable unit/contract tests
-        shell: bash
-        run: ./tests/run_tests.sh --portable
-
       - name: Assemble release and NSIS
         shell: pwsh
         run: |
@@ -113,6 +111,15 @@ jobs:
           python scripts/release/assemble.py --target windows-x64 --commit "${{ github.sha }}" --artifact-label "$env:AVELRA_ARTIFACT_LABEL"
           $version = (Get-Content VERSION -Raw).Trim()
           ./scripts/package/windows-nsis.ps1 -ReleaseDir "build/releases/$version/windows-x64" -ArtifactLabel "$env:AVELRA_ARTIFACT_LABEL"
+
+      - name: Run Windows unit/contract tests
+        shell: bash
+        env:
+          AVELRA_TARGET: windows-x64
+          AVELRA_RELEASE_DIR: ${{ github.workspace }}/build/releases
+        run: |
+          nim c --hints:off --nimcache:build/tests/nimcache-runner             --out:build/tests/run_tests tests/run_tests.nim
+          ./build/tests/run_tests
 
       - name: Stage Windows artifacts
         shell: pwsh
@@ -149,9 +156,6 @@ jobs:
           AVELRA_MACOS_ARCH: x64
         run: ./scripts/build/macos.sh
 
-      - name: Run macOS x64 portable unit/contract tests
-        run: ./tests/run_tests.sh --portable
-
       - name: Assemble macOS x64 and DMG
         env:
           AVELRA_TARGET: macos-x64
@@ -159,6 +163,14 @@ jobs:
           python3 scripts/release/assemble.py --target macos-x64 --commit "${{ github.sha }}" --artifact-label "$AVELRA_ARTIFACT_LABEL"
           version="$(cat VERSION)"
           ./scripts/package/macos-dmg.sh "build/releases/$version/macos-x64"
+
+      - name: Run macOS x64 unit/contract tests
+        env:
+          AVELRA_TARGET: macos-x64
+          AVELRA_RELEASE_DIR: ${{ github.workspace }}/build/releases
+        run: |
+          nim c --hints:off --nimcache:build/tests/nimcache-runner             --out:build/tests/run_tests tests/run_tests.nim
+          ./build/tests/run_tests
 
       - name: Stage macOS x64 artifacts
         run: |

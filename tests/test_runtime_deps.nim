@@ -1,46 +1,30 @@
 ## Runtime dependency inspection without starting GTK/WebKit.
 
-import std/[os, osproc, strutils, unittest]
+import std/[os, unittest]
 
 import cli/runtime_deps
 
-proc fakeLibrary(name, source: string): string =
-  let dir = getTempDir() / ("avelra-runtime-deps-" & $getCurrentProcessId())
-  createDir(dir)
-  let src = dir / (name & ".c")
-  let lib = dir / ("lib" & name & ".so")
-  writeFile(src, source)
-  let result = execCmdEx("cc -shared -fPIC -o " & quoteShell(lib) &
-    " " & quoteShell(src))
-  if result.exitCode != 0:
-    checkpoint(result.output)
-  check result.exitCode == 0
-  lib
+const libExt =
+  when defined(windows): ".dll"
+  elif defined(macosx): ".dylib"
+  else: ".so"
+
+let testBin = getEnv("AVELRA_TEST_BIN", "build/tests/bin")
+let versionLib = testBin / ("fake_version_lib" & libExt)
+let emptyLib = testBin / ("fake_empty_lib" & libExt)
 
 suite "runtime dependency diagnostics":
   test "reports a missing library":
     let checks = diagnose(@[
-      LibrarySpec(display: "missing", library: "/nonexistent/avelra-test-lib.so")
+      LibrarySpec(display: "missing", library: "/nonexistent/avelra-test-lib")
     ])
     check checks.len == 1
     check checks[0].state == depMissing
 
-  test "reports a loadable library":
-    let checks = diagnose(@[
-      LibrarySpec(display: "libc", library: "libc.so.6")
-    ])
-    check checks.len == 1
-    check checks[0].state == depOk
-
   test "reports an old version":
-    let lib = fakeLibrary("old", """
-unsigned int fake_major_version(void) { return 3; }
-unsigned int fake_minor_version(void) { return 20; }
-unsigned int fake_micro_version(void) { return 0; }
-""")
     let checks = diagnose(@[
       LibrarySpec(
-        display: "old", library: lib,
+        display: "old", library: versionLib,
         minMajor: 3, minMinor: 24,
         majorSymbol: "fake_major_version",
         minorSymbol: "fake_minor_version",
@@ -51,10 +35,9 @@ unsigned int fake_micro_version(void) { return 0; }
     check checks[0].version == "3.20.0"
 
   test "reports an unknown version":
-    let lib = fakeLibrary("unknown", "int fake(void) { return 1; }\n")
     let checks = diagnose(@[
       LibrarySpec(
-        display: "unknown", library: lib,
+        display: "unknown", library: emptyLib,
         minMajor: 3, minMinor: 24,
         majorSymbol: "fake_major_version",
         minorSymbol: "fake_minor_version",
