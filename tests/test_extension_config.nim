@@ -10,8 +10,9 @@ createDir(root / "extensions" / "uploader")
 writeFile(root / "extensions" / "uploader" / "uploader", "")
 let configPath = root / "avelra.config.json"
 
-proc validConfig(id = "uploader"; osName = "linux";
+proc validConfig(id = "uploader"; osName = "";
                  command = "extensions/uploader/uploader"): string =
+  let selectedOs = if osName.len == 0: hostOs() else: osName
   result = """{
     "name": "Extension App",
     "extensions": [
@@ -27,7 +28,7 @@ proc validConfig(id = "uploader"; osName = "linux";
     ]
   }"""
   result = result.replace("__id__", id)
-  result = result.replace("__os__", osName)
+  result = result.replace("__os__", selectedOs)
   result = result.replace("__cmd__", command)
 
 try:
