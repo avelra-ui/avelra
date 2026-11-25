@@ -91,8 +91,13 @@ proc sendMessage(host: ExtensionHost; node: JsonNode) =
   if host.process == nil:
     raise newException(ExtensionHostError, "extension process is not running")
   let stream = host.process.inputStream
-  stream.writeLine($node)
-  stream.flush()
+  try:
+    stream.writeLine($node)
+    stream.flush()
+  except CatchableError as exc:
+    host.state = esCrashed
+    raise newException(ExtensionHostError,
+      "extension pipe is closed: " & exc.msg)
 
 proc nextLine(host: ExtensionHost; timeoutMs: int): string =
   let started = epochTime()

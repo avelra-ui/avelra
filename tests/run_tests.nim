@@ -24,12 +24,15 @@ proc run(command: string; args: seq[string]): int =
 
 proc compileTest(name: string; source = "") =
   let sourcePath = if source.len > 0: source else: "tests/" & name & ".nim"
-  let code = run("nim", @[
+  var args = @[
     "c", "--hints:off", "--mm:orc", "--threads:on",
     "--path:src", "--path:tests",
     "--nimcache:" & nimcache,
     "--out:" & (testBin / (name & exe)),
-    sourcePath])
+    sourcePath]
+  when defined(windows):
+    args.insert("--cc:vcc", 2)
+  let code = run("nim", args)
   if code != 0:
     raise newException(OSError, "compile failed: " & name)
 
@@ -69,5 +72,6 @@ else:
   compileTest("extension_echo", "tests/fixtures/extension_echo.nim")
   compileTest("single_exe_harness", "tests/single_exe_harness.nim")
   coreSuite()
-  runTest("test_package_contract")
-  runTest("test_installer_platform")
+  if getEnv("AVELRA_TARGET").len > 0:
+    runTest("test_package_contract")
+    runTest("test_installer_platform")
