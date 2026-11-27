@@ -14,6 +14,7 @@ let testBin = buildDir / "tests" / "bin"
 let testTmp = buildDir / "tests" / "tmp-core"
 let testHome = testTmp / "home"
 let nimcache = buildDir / "tests" / "nimcache-core"
+let phase = getEnv("AVELRA_TEST_PHASE", "all")
 
 proc run(command: string; args: seq[string]): int =
   let cmd = quoteShell(command) & " " & args.mapIt(quoteShell(it)).join(" ")
@@ -69,15 +70,18 @@ putEnv("AVELRA_TEST_BIN", testBin)
 compileTest("fake_runtime", "tests/fixtures/fake_runtime.nim")
 compileTest("extension_echo", "tests/fixtures/extension_echo.nim")
 compileTest("single_exe_harness", "tests/single_exe_harness.nim")
-coreSuite()
 when defined(linux):
-  # Linux-specific implementations of the same semantic groups.
-  runTest("test_installer")
-  runTest("test_sdk_package")
-  if run("bash", @["tests/test_release.sh"]) != 0:
-    raise newException(OSError, "test failed: test_release.sh")
+  if phase in ["all", "core"]:
+    coreSuite()
+    # Linux-specific implementations of the same semantic groups.
+    runTest("test_installer")
+    runTest("test_sdk_package")
+    if run("bash", @["tests/test_release.sh"]) != 0:
+      raise newException(OSError, "test failed: test_release.sh")
 else:
-  if getEnv("AVELRA_TARGET").len > 0:
+  if phase in ["all", "core"]:
+    coreSuite()
+  if phase in ["all", "release"] and getEnv("AVELRA_TARGET").len > 0:
     runTest("test_package_contract")
     runTest("test_installer_platform")
     runTest("test_release_tree")
