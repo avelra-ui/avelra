@@ -16,6 +16,11 @@ let testHome = testTmp / "home"
 let nimcache = buildDir / "tests" / "nimcache-core"
 let phase = getEnv("AVELRA_TEST_PHASE", "all")
 
+if phase == "fail":
+  # Deliberate failure used by CI to prove the runner propagates non-zero.
+  echo "intentional test failure probe"
+  quit(7)
+
 proc run(command: string; args: seq[string]): int =
   let cmd = quoteShell(command) & " " & args.mapIt(quoteShell(it)).join(" ")
   echo "::group::", cmd

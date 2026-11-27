@@ -73,6 +73,13 @@ jobs:
           nim c --hints:off --nimcache:build/tests/nimcache-runner             --out:build/tests/run_tests tests/run_tests.nim
           ./build/tests/run_tests
 
+      - name: Verify failure propagation
+        run: |
+          if AVELRA_TEST_PHASE=fail ./build/tests/run_tests; then
+            echo "failure probe unexpectedly succeeded" >&2
+            exit 1
+          fi
+
       - name: Assemble Linux artifacts
         run: ./scripts/release/build.sh
 
@@ -114,6 +121,16 @@ jobs:
           nim c --hints:off --nimcache:build/tests/nimcache-runner `
             --out:build/tests/run_tests tests/run_tests.nim
           ./build/tests/run_tests.exe
+
+      - name: Verify failure propagation
+        shell: pwsh
+        run: |
+          $env:AVELRA_TEST_PHASE = "fail"
+          ./build/tests/run_tests.exe
+          if ($LASTEXITCODE -eq 0) {
+            Write-Error "failure probe unexpectedly succeeded"
+            exit 1
+          }
 
       - name: Assemble release and NSIS
         shell: pwsh
@@ -173,6 +190,13 @@ jobs:
         run: |
           nim c --hints:off --nimcache:build/tests/nimcache-runner             --out:build/tests/run_tests tests/run_tests.nim
           ./build/tests/run_tests
+
+      - name: Verify failure propagation
+        run: |
+          if AVELRA_TEST_PHASE=fail ./build/tests/run_tests; then
+            echo "failure probe unexpectedly succeeded" >&2
+            exit 1
+          fi
 
       - name: Assemble macOS x64 and DMG
         env:
