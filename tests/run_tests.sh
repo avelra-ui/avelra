@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run the full headless Linux test suite; this is a platform implementation
-# called by the canonical tests/run_tests.nim entrypoint.
+# Local convenience wrapper; tests/run_tests.nim is the canonical entrypoint.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
