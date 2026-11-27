@@ -126,11 +126,13 @@ jobs:
         shell: pwsh
         run: |
           $env:AVELRA_TEST_PHASE = "fail"
-          ./build/tests/run_tests.exe
-          if ($LASTEXITCODE -eq 0) {
+          $probe = Start-Process -FilePath "./build/tests/run_tests.exe" `
+            -NoNewWindow -Wait -PassThru
+          if ($probe.ExitCode -eq 0) {
             Write-Error "failure probe unexpectedly succeeded"
             exit 1
           }
+          Write-Host "failure probe exited $($probe.ExitCode) as expected"
 
       - name: Assemble release and NSIS
         shell: pwsh
