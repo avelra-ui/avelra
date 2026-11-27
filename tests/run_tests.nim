@@ -1,7 +1,8 @@
 ## Canonical cross-platform test entrypoint.
 ##
-## Linux delegates to the existing full platform suite. Windows and macOS x64
-## run the shared core suite plus the package contract against release outputs.
+## All platforms run the shared core suite. Linux adds the Linux-specific
+## installer/SDK/release implementations; Windows and macOS x64 add platform
+## package, installer and release-tree contracts against assembled outputs.
 
 import std/[os, osproc, sequtils, strutils]
 
@@ -47,31 +48,36 @@ proc coreSuite() =
     "test_native_call", "test_dispatcher", "test_url_policy",
     "test_static_paths", "test_resource_store", "test_zip", "test_payload",
     "test_embedded_store", "test_pack_cli", "test_single_exe",
-    "test_bind_error", "test_platform_checks",
+    "test_bind_error", "test_runtime_deps", "test_platform_checks",
     "test_cli_config", "test_cli_help", "test_cli_layout",
     "test_cli_init", "test_cli_build", "test_cli_run",
     "test_extension_config", "test_extension_host",
     "test_extension_manager", "test_static_server"]:
     runTest(name)
 
+removeDir(testTmp)
+createDir(testBin)
+createDir(testHome)
+createDir(nimcache)
+putEnv("TMPDIR", testTmp)
+putEnv("TEMP", testTmp)
+putEnv("TMP", testTmp)
+putEnv("AVELRA_HOME", buildDir)
+putEnv("AVELRA_CLI", buildDir / "bin" / ("avelra" & exe))
+putEnv("AVELRA_PACK", buildDir / "libexec" / "avelra" / ("avelra-pack" & exe))
+putEnv("AVELRA_TEST_BIN", testBin)
+compileTest("fake_runtime", "tests/fixtures/fake_runtime.nim")
+compileTest("extension_echo", "tests/fixtures/extension_echo.nim")
+compileTest("single_exe_harness", "tests/single_exe_harness.nim")
+coreSuite()
 when defined(linux):
-  quit(run("bash", @["tests/run_tests.sh"]))
+  # Linux-specific implementations of the same semantic groups.
+  runTest("test_installer")
+  runTest("test_sdk_package")
+  if run("bash", @["tests/test_release.sh"]) != 0:
+    raise newException(OSError, "test failed: test_release.sh")
 else:
-  removeDir(testTmp)
-  createDir(testBin)
-  createDir(testHome)
-  createDir(nimcache)
-  putEnv("TMPDIR", testTmp)
-  putEnv("TEMP", testTmp)
-  putEnv("TMP", testTmp)
-  putEnv("AVELRA_HOME", buildDir)
-  putEnv("AVELRA_CLI", buildDir / "bin" / ("avelra" & exe))
-  putEnv("AVELRA_PACK", buildDir / "libexec" / "avelra" / ("avelra-pack" & exe))
-  putEnv("AVELRA_TEST_BIN", testBin)
-  compileTest("fake_runtime", "tests/fixtures/fake_runtime.nim")
-  compileTest("extension_echo", "tests/fixtures/extension_echo.nim")
-  compileTest("single_exe_harness", "tests/single_exe_harness.nim")
-  coreSuite()
   if getEnv("AVELRA_TARGET").len > 0:
     runTest("test_package_contract")
     runTest("test_installer_platform")
+    runTest("test_release_tree")
