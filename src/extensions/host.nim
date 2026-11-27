@@ -84,15 +84,23 @@ proc stopReader(host: ExtensionHost) =
       host.lines.close()
     except CatchableError:
       discard
-    joinThread(host.reader)
+    try:
+      joinThread(host.reader)
+    except CatchableError:
+      discard
     host.readerStarted = false
 
 proc sendMessage(host: ExtensionHost; node: JsonNode) =
   if host.process == nil:
     raise newException(ExtensionHostError, "extension process is not running")
   let stream = host.process.inputStream
-  stream.writeLine($node)
-  stream.flush()
+  try:
+    stream.writeLine($node)
+    stream.flush()
+  except CatchableError as exc:
+    host.state = esCrashed
+    raise newException(ExtensionHostError,
+      "extension pipe is closed: " & exc.msg)
 
 proc nextLine(host: ExtensionHost; timeoutMs: int): string =
   let started = epochTime()
@@ -218,16 +226,25 @@ proc stopExtension*(host: ExtensionHost) =
     host.process.inputStream.close()
   except CatchableError:
     discard
-  discard host.process.waitForExit(2000)
-  if host.process.running():
-    host.process.terminate()
-    discard host.process.waitForExit(1000)
-  if host.process.running():
-    host.process.kill()
-    discard host.process.waitForExit(1000)
-  host.process.close()
+  try:
+    discard host.process.waitForExit(2000)
+    if host.process.running():
+      host.process.terminate()
+      discard host.process.waitForExit(1000)
+    if host.process.running():
+      host.process.kill()
+      discard host.process.waitForExit(1000)
+  except CatchableError:
+    discard
+  try:
+    host.process.close()
+  except CatchableError:
+    discard
   host.process = nil
-  host.stopReader()
+  try:
+    host.stopReader()
+  except CatchableError:
+    discard
   host.state = esStopped
 
 proc startExtension*(config: ExtensionConfig; appDir: string;
@@ -255,9 +272,13 @@ proc startExtension*(config: ExtensionConfig; appDir: string;
     let response = result.readResponse(1, InitializeTimeoutMs)
     result.parseHandshake(response)
     result.state = esReady
-  except CatchableError:
-    result.stopExtension()
-    raise
+  except CatchableError as exc:
+    # A cleanup failure must not replace the error that aborted startup.
+    try:
+      result.stopExtension()
+    except CatchableError:
+      discard
+    raise exc
 
 proc request*(host: ExtensionHost; methodName: string; params: JsonNode = nil;
               timeoutMs = DefaultRequestTimeoutMs): JsonNode =

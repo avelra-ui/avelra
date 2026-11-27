@@ -10,7 +10,8 @@ import extensions/manager
 import ports/[env_port, loading_port]
 
 let root = getTempDir() / ("avelra-extension-manager-" & $getCurrentProcessId())
-let executable = absolutePath(testBin("extension_echo"))
+let fixtureExt = when defined(windows): ".exe" else: ""
+let executable = absolutePath(testBin("extension_echo" & fixtureExt))
 removeDir(root)
 createDir(root)
 
@@ -22,7 +23,7 @@ proc makeConfig(timeoutMs = 30000; command: seq[string] = @[executable]): Extens
     requestTimeoutMs: timeoutMs,
     commands: initTable[string, seq[string]]()
   )
-  result.commands["linux"] = command
+  result.commands[hostOs()] = command
 
 try:
   suite "extension manager":

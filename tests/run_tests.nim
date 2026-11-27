@@ -10,6 +10,8 @@ const exe = when defined(windows): ".exe" else: ""
 
 let buildDir = root / "build"
 let testBin = buildDir / "tests" / "bin"
+let testTmp = buildDir / "tests" / "tmp-core"
+let testHome = testTmp / "home"
 let nimcache = buildDir / "tests" / "nimcache-core"
 
 proc run(command: string; args: seq[string]): int =
@@ -22,12 +24,15 @@ proc run(command: string; args: seq[string]): int =
 
 proc compileTest(name: string; source = "") =
   let sourcePath = if source.len > 0: source else: "tests/" & name & ".nim"
-  let code = run("nim", @[
+  var args = @[
     "c", "--hints:off", "--mm:orc", "--threads:on",
     "--path:src", "--path:tests",
     "--nimcache:" & nimcache,
     "--out:" & (testBin / (name & exe)),
-    sourcePath])
+    sourcePath]
+  when defined(windows):
+    args.insert("--cc:vcc", 2)
+  let code = run("nim", args)
   if code != 0:
     raise newException(OSError, "compile failed: " & name)
 
@@ -41,17 +46,25 @@ proc coreSuite() =
   for name in [
     "test_native_call", "test_dispatcher", "test_url_policy",
     "test_static_paths", "test_resource_store", "test_zip", "test_payload",
-    "test_embedded_store", "test_bind_error", "test_platform_checks",
+    "test_embedded_store", "test_pack_cli", "test_single_exe",
+    "test_bind_error", "test_platform_checks",
     "test_cli_config", "test_cli_help", "test_cli_layout",
     "test_cli_init", "test_cli_build", "test_cli_run",
-    "test_extension_config"]:
+    "test_extension_config", "test_extension_host",
+    "test_extension_manager", "test_static_server"]:
     runTest(name)
 
 when defined(linux):
   quit(run("bash", @["tests/run_tests.sh"]))
 else:
+  removeDir(testTmp)
   createDir(testBin)
+  createDir(testHome)
   createDir(nimcache)
+  putEnv("TMPDIR", testTmp)
+  putEnv("TEMP", testTmp)
+  putEnv("TMP", testTmp)
+  putEnv("AVELRA_HOME", buildDir)
   putEnv("AVELRA_CLI", buildDir / "bin" / ("avelra" & exe))
   putEnv("AVELRA_PACK", buildDir / "libexec" / "avelra" / ("avelra-pack" & exe))
   putEnv("AVELRA_TEST_BIN", testBin)
@@ -59,5 +72,6 @@ else:
   compileTest("extension_echo", "tests/fixtures/extension_echo.nim")
   compileTest("single_exe_harness", "tests/single_exe_harness.nim")
   coreSuite()
-  runTest("test_package_contract")
-  runTest("test_installer_platform")
+  if getEnv("AVELRA_TARGET").len > 0:
+    runTest("test_package_contract")
+    runTest("test_installer_platform")
