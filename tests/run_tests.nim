@@ -1,8 +1,8 @@
 ## Canonical cross-platform test entrypoint.
 ##
-## All platforms run the shared core suite. Linux adds the Linux-specific
-## installer/SDK/release implementations; Windows and macOS x64 add platform
-## package, installer and release-tree contracts against assembled outputs.
+## Three equal platforms: linux, windows, macos. Required semantic groups are
+## declared in tests/required-groups.txt; platform implementations live under
+## tests/platform/<os>/<group>.nim. Missing group coverage is a hard failure.
 
 import std/[os, osproc, sequtils, strutils]
 
@@ -15,6 +15,15 @@ let testTmp = buildDir / "tests" / "tmp-core"
 let testHome = testTmp / "home"
 let nimcache = buildDir / "tests" / "nimcache-core"
 let phase = getEnv("AVELRA_TEST_PHASE", "all")
+const platformName = when defined(linux): "linux"
+  elif defined(windows): "windows"
+  elif defined(macosx): "macos"
+  else: "unknown"
+const commonGroups = ["core", "runtime_deps"]
+let requiredGroups = readFile(root / "tests" / "required-groups.txt")
+  .splitLines()
+  .mapIt(it.strip)
+  .filterIt(it.len > 0 and not it.startsWith("#"))
 
 if phase == "fail":
   # Deliberate failure used by CI to prove the runner propagates non-zero.
@@ -49,12 +58,32 @@ proc runTest(name: string) =
   if code != 0:
     raise newException(OSError, "test failed: " & name)
 
+proc runTestPath(name: string; source: string) =
+  compileTest(name, source)
+  let code = run(testBin / (name & exe), @[])
+  if code != 0:
+    raise newException(OSError, "test failed: " & name)
+
+proc coreSuite()
+
+proc runGroup(group: string) =
+  if group == "core":
+    coreSuite()
+  elif group == "runtime_deps":
+    runTest("test_runtime_deps")
+  else:
+    let source = "tests/platform" / platformName / (group & ".nim")
+    if not fileExists(source):
+      raise newException(OSError,
+        "missing semantic group " & group & " for " & platformName)
+    runTestPath(group, source)
+
 proc coreSuite() =
   for name in [
     "test_native_call", "test_dispatcher", "test_url_policy",
     "test_static_paths", "test_resource_store", "test_zip", "test_payload",
     "test_embedded_store", "test_pack_cli", "test_single_exe",
-    "test_bind_error", "test_runtime_deps", "test_platform_checks",
+    "test_bind_error", "test_platform_checks",
     "test_cli_config", "test_cli_help", "test_cli_layout",
     "test_cli_init", "test_cli_build", "test_cli_run",
     "test_extension_config", "test_extension_host",
@@ -72,21 +101,22 @@ putEnv("AVELRA_HOME", buildDir)
 putEnv("AVELRA_CLI", buildDir / "bin" / ("avelra" & exe))
 putEnv("AVELRA_PACK", buildDir / "libexec" / "avelra" / ("avelra-pack" & exe))
 putEnv("AVELRA_TEST_BIN", testBin)
+
+# Coverage gate: every non-common required group must exist for this platform.
+for group in requiredGroups:
+  if group notin commonGroups and not fileExists("tests/platform" / platformName / (group & ".nim")):
+    raise newException(OSError,
+      "missing semantic group " & group & " for " & platformName)
+
 compileTest("fake_runtime", "tests/fixtures/fake_runtime.nim")
 compileTest("extension_echo", "tests/fixtures/extension_echo.nim")
 compileTest("single_exe_harness", "tests/single_exe_harness.nim")
-when defined(linux):
-  if phase in ["all", "core"]:
-    coreSuite()
-    # Linux-specific implementations of the same semantic groups.
-    runTest("test_installer")
-    runTest("test_sdk_package")
-    if run("bash", @["tests/test_release.sh"]) != 0:
-      raise newException(OSError, "test failed: test_release.sh")
-else:
-  if phase in ["all", "core"]:
-    coreSuite()
-  if phase in ["all", "release"] and getEnv("AVELRA_TARGET").len > 0:
-    runTest("test_package_contract")
-    runTest("test_installer_platform")
-    runTest("test_release_tree")
+
+if phase in ["all", "core"]:
+  runGroup("core")
+  runGroup("runtime_deps")
+
+if phase in ["all", "release"] and getEnv("AVELRA_TARGET").len > 0:
+  for group in requiredGroups:
+    if group notin commonGroups:
+      runGroup(group)

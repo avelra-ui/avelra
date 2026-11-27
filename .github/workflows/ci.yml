@@ -83,6 +83,14 @@ jobs:
       - name: Assemble Linux artifacts
         run: ./scripts/release/build.sh
 
+      - name: Run Linux release contracts
+        env:
+          AVELRA_TEST_PHASE: release
+          AVELRA_TARGET: linux-x64
+          AVELRA_RELEASE_DIR: ${{ github.workspace }}/build/releases
+        run: ./build/tests/run_tests
+
+
       - name: Stage Linux artifacts
         run: |
           version="$(cat VERSION)"
