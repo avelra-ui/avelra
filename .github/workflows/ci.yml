@@ -66,13 +66,30 @@ jobs:
       - name: Build Linux
         run: ./scripts/build/linux.sh
 
-      - name: Run Linux unit/contract tests
+      - name: Run Linux core unit/contract tests
+        env:
+          AVELRA_TEST_PHASE: core
         run: |
           nim c --hints:off --nimcache:build/tests/nimcache-runner             --out:build/tests/run_tests tests/run_tests.nim
           ./build/tests/run_tests
 
+      - name: Verify failure propagation
+        run: |
+          if AVELRA_TEST_PHASE=fail ./build/tests/run_tests; then
+            echo "failure probe unexpectedly succeeded" >&2
+            exit 1
+          fi
+
       - name: Assemble Linux artifacts
         run: ./scripts/release/build.sh
+
+      - name: Run Linux release contracts
+        env:
+          AVELRA_TEST_PHASE: release
+          AVELRA_TARGET: linux-x64
+          AVELRA_RELEASE_DIR: ${{ github.workspace }}/build/releases
+        run: ./build/tests/run_tests
+
 
       - name: Stage Linux artifacts
         run: |
@@ -104,6 +121,27 @@ jobs:
         shell: pwsh
         run: ./scripts/build/windows.ps1
 
+      - name: Run Windows core unit/contract tests
+        shell: pwsh
+        env:
+          AVELRA_TEST_PHASE: core
+        run: |
+          nim c --hints:off --nimcache:build/tests/nimcache-runner `
+            --out:build/tests/run_tests tests/run_tests.nim
+          ./build/tests/run_tests.exe
+
+      - name: Verify failure propagation
+        shell: pwsh
+        run: |
+          $env:AVELRA_TEST_PHASE = "fail"
+          $probe = Start-Process -FilePath "./build/tests/run_tests.exe" `
+            -NoNewWindow -Wait -PassThru
+          if ($probe.ExitCode -eq 0) {
+            Write-Error "failure probe unexpectedly succeeded"
+            exit 1
+          }
+          Write-Host "failure probe exited $($probe.ExitCode) as expected"
+
       - name: Assemble release and NSIS
         shell: pwsh
         run: |
@@ -112,14 +150,13 @@ jobs:
           $version = (Get-Content VERSION -Raw).Trim()
           ./scripts/package/windows-nsis.ps1 -ReleaseDir "build/releases/$version/windows-x64" -ArtifactLabel "$env:AVELRA_ARTIFACT_LABEL"
 
-      - name: Run Windows unit/contract tests
+      - name: Run Windows release contracts
         shell: pwsh
         env:
+          AVELRA_TEST_PHASE: release
           AVELRA_TARGET: windows-x64
           AVELRA_RELEASE_DIR: ${{ github.workspace }}/build/releases
         run: |
-          nim c --hints:off --nimcache:build/tests/nimcache-runner `
-            --out:build/tests/run_tests tests/run_tests.nim
           ./build/tests/run_tests.exe
 
       - name: Stage Windows artifacts
@@ -157,6 +194,20 @@ jobs:
           AVELRA_MACOS_ARCH: x64
         run: ./scripts/build/macos.sh
 
+      - name: Run macOS x64 core unit/contract tests
+        env:
+          AVELRA_TEST_PHASE: core
+        run: |
+          nim c --hints:off --nimcache:build/tests/nimcache-runner             --out:build/tests/run_tests tests/run_tests.nim
+          ./build/tests/run_tests
+
+      - name: Verify failure propagation
+        run: |
+          if AVELRA_TEST_PHASE=fail ./build/tests/run_tests; then
+            echo "failure probe unexpectedly succeeded" >&2
+            exit 1
+          fi
+
       - name: Assemble macOS x64 and DMG
         env:
           AVELRA_TARGET: macos-x64
@@ -165,12 +216,12 @@ jobs:
           version="$(cat VERSION)"
           ./scripts/package/macos-dmg.sh "build/releases/$version/macos-x64"
 
-      - name: Run macOS x64 unit/contract tests
+      - name: Run macOS x64 release contracts
         env:
+          AVELRA_TEST_PHASE: release
           AVELRA_TARGET: macos-x64
           AVELRA_RELEASE_DIR: ${{ github.workspace }}/build/releases
         run: |
-          nim c --hints:off --nimcache:build/tests/nimcache-runner             --out:build/tests/run_tests tests/run_tests.nim
           ./build/tests/run_tests
 
       - name: Stage macOS x64 artifacts

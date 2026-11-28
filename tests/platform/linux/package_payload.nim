@@ -1,4 +1,4 @@
-## SDK package layout test (uses a fake SDK prefix).
+## Package payload layout test (uses a fake SDK prefix).
 
 import std/[os, osproc, strutils, unittest]
 
@@ -27,7 +27,7 @@ for file in [binDir / "avelra", libexecDir / "avelra-runtime",
 putEnv("AVELRA_SDK_SOURCE", root)
 
 try:
-  suite "SDK package":
+  suite "package payload":
     test "tar contains bin, libexec and templates":
       let result = execCmdEx("./scripts/package/sdk.sh --tar")
       check result.exitCode == 0

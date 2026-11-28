@@ -54,6 +54,13 @@ run_test() {
   "$TEST_BIN/$name$EXE"
 }
 
+run_test_path() {
+  local name="$1"
+  local source="$2"
+  compile_test "$name" "$source"
+  "$TEST_BIN/$name$EXE"
+}
+
 compile_test single_exe_harness tests/single_exe_harness.nim
 compile_test extension_echo tests/fixtures/extension_echo.nim
 compile_test fake_runtime tests/fixtures/fake_runtime.nim
@@ -77,11 +84,11 @@ run_test test_cli_help
 run_test test_cli_init
 run_test test_cli_build
 run_test test_cli_run
-run_test test_installer
-run_test test_sdk_package
+run_test_path installer tests/platform/linux/installer.nim
+run_test_path package_payload tests/platform/linux/package_payload.nim
 run_test test_extension_config
 run_test test_extension_host
 run_test test_extension_manager
 run_test test_static_server
 
-"$ROOT/tests/test_release.sh"
+"$ROOT/tests/platform/linux/release_tree.sh"
